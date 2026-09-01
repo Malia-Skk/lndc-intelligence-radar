@@ -68,9 +68,6 @@ def fetch_records():
             response.raise_for_status()
             payload = response.json()
 
-            # Be defensive about the exact response shape since we haven't verified it
-            # against a live sample yet -- print a snippet so a first real run tells us
-            # immediately if this guess needs adjusting.
             if isinstance(payload, dict) and "data" in payload:
                 records = payload["data"]
             elif isinstance(payload, list):
@@ -94,6 +91,21 @@ def fetch_records():
 
     print(f"All {MAX_ATTEMPTS} attempts failed. Skipping this run cleanly. Last error: {last_error}")
     return None
+
+
+def filter_to_totals(records):
+    """Comtrade returns both clean grand-totals and finer breakdowns (by customs
+    procedure, mode of transport, second partner) mixed together in one response.
+    We only want the grand total per reporter/flow/year, so keep records where
+    those breakdown dimensions are all set to their "TOTAL" sentinel values."""
+    kept = []
+    for rec in records:
+        customs_is_total = str(rec.get("customsCode", "")) == "C00"
+        mot_is_total = str(rec.get("motCode", "")) in ("0", "0.0")
+        partner2_is_total = str(rec.get("partner2Code", "")) in ("0", "0.0")
+        if customs_is_total and mot_is_total and partner2_is_total:
+            kept.append(rec)
+    return kept
 
 
 def first_present(record, *keys):
@@ -157,8 +169,10 @@ def main():
     if records is None:
         print("No data fetched this run. Will try again on the next scheduled run.")
         return
+    total_records = filter_to_totals(records)
+    print(f"Kept {len(total_records)} grand-total records out of {len(records)} raw records.")
     existing = load_existing_keys(LOG_PATH)
-    new_count = append_new_rows(LOG_PATH, records, existing)
+    new_count = append_new_rows(LOG_PATH, total_records, existing)
     print(f"Added {new_count} new rows to the log.")
 
 
