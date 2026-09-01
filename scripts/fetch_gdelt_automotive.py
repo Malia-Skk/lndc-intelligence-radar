@@ -4,8 +4,10 @@ import os
 import time
 import requests
 
-QUERY = ('(automotive OR "auto parts" OR "vehicle components" OR "automotive supplier") '
-         'AND (Africa OR "South Africa" OR SADC OR nearshoring OR "supply chain")')
+QUERY = ('sourcelang:english ("automotive supply chain" OR "automotive component" OR '
+         '"automotive components" OR "auto parts" OR "vehicle components" OR '
+         '"automotive manufacturing" OR "automotive supplier") '
+         '(Africa OR "South Africa" OR SADC OR Lesotho OR "sub-Saharan")')
 
 API_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
 
@@ -82,9 +84,6 @@ def append_new_rows(path, articles, existing_urls):
 def main():
     articles = fetch_signals()
     if articles is None:
-        # GDELT was unreachable after retries. Exit successfully (not a failure) so the
-        # workflow doesn't show a false "broken pipeline" alarm for a transient outage --
-        # tomorrow's scheduled run will simply try again.
         print("No data fetched this run. Will try again on the next scheduled run.")
         return
     existing = load_existing_urls(LOG_PATH)
