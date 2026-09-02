@@ -46,6 +46,8 @@ def fetch_signals():
                 continue
 
             response.raise_for_status()
+            if not response.text.strip():
+                raise ValueError("GDELT returned an empty response body")
             payload = response.json()
             return payload.get("articles", [])
 
