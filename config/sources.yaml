@@ -1,0 +1,164 @@
+# LNDC Intelligence Radar — Source Registry
+#
+# Single source of truth for what the radar ingests. Adding a country to an
+# existing pull, or adding a brand-new source, should mean editing this file —
+# not writing a new script from scratch. Each fetch script under scripts/
+# reads its own section here at run time via scripts/lib/registry.py.
+#
+# status: active  -> a fetch script + GitHub Actions workflow exist and run on schedule
+# status: planned -> named and scoped, not yet built (Phase 5 in the roadmap)
+#
+# This file intentionally does NOT touch the three original automotive-pilot
+# sources (worldbank_indicator_log.csv, comtrade_automotive_log.csv,
+# automotive_signal_log.csv) or their scripts. Those keep running exactly as
+# they do today; they're just not re-described here.
+
+version: 1
+
+# Reusable country groups, referenced by id from within a source entry.
+countries:
+  sacu:
+    - { name: Lesotho,      iso3: LSO, comtrade_code: "426" }
+    - { name: South Africa, iso3: ZAF, comtrade_code: "710" }
+    - { name: Botswana,     iso3: BWA, comtrade_code: "072" }
+    - { name: Namibia,      iso3: NAM, comtrade_code: "516" }
+    - { name: Eswatini,     iso3: SWZ, comtrade_code: "748" }
+
+sources:
+
+  # ---------------------------------------------------------------------
+  # PHASE 1 — ACTIVE
+  # ---------------------------------------------------------------------
+
+  - id: worldbank_macro
+    category: macro
+    status: active
+    description: >
+      Full SACU macro panel (widened from the automotive pilot's LSO-vs-ZAF,
+      5-indicator pull). Feeds the macro instrument panel tile and the
+      diagnosis-linked BOP-gap indicator.
+    script: scripts/fetch_worldbank_macro.py
+    workflow: .github/workflows/worldbank-macro-pull.yml
+    cadence: "weekly, Mon 06:30 UTC"
+    output: data/macro/worldbank_indicator_log.csv
+    countries: sacu
+    date_range: "2010:2026"
+    indicators:
+      - code: NY.GDP.PCAP.KD.ZG
+        name: "GDP per capita growth (annual %)"
+        outcome_link: "Outcome 2 — 7% exit growth target"
+      - code: NY.GDP.PCAP.CD
+        name: "GDP per capita (current US$)"
+        outcome_link: "Diagnosis Fig.2 — SACU wealth-gap comparison"
+      - code: BN.CAB.XOKA.GD.ZS
+        name: "Current account balance (% of GDP)"
+        outcome_link: "Diagnosis Ch.1.3 — balance-of-payments constraint"
+      - code: NE.RSB.GNFS.ZS
+        name: "External balance on goods and services (% of GDP)"
+        outcome_link: "Diagnosis Ch.1.3 — trade balance"
+      - code: NE.EXP.GNFS.ZS
+        name: "Exports of goods and services (% of GDP)"
+        outcome_link: "Diagnosis Ch.1.3/1.6 — export capacity"
+      - code: NE.IMP.GNFS.ZS
+        name: "Imports of goods and services (% of GDP)"
+        outcome_link: "Diagnosis Ch.1.3 — import dependence"
+      - code: NV.IND.MANF.ZS
+        name: "Manufacturing, value added (% of GDP)"
+        outcome_link: "Outcome 4 — industrial diversification"
+      - code: NV.IND.TOTL.ZS
+        name: "Industry (incl. construction), value added (% of GDP)"
+        outcome_link: "Outcome 4 — industrial diversification"
+      - code: TX.VAL.MANF.ZS.UN
+        name: "Manufactured exports (% of merchandise exports)"
+        outcome_link: "Outcome 5 — economic complexity"
+      - code: BX.KLT.DINV.WD.GD.ZS
+        name: "FDI, net inflows (% of GDP)"
+        outcome_link: "Outcome 3 — FDI/industrialist pipeline"
+      - code: SL.UEM.TOTL.ZS
+        name: "Unemployment, total (% of total labor force)"
+        outcome_link: "Outcome 1 — 50,000 net jobs"
+      - code: SP.POP.TOTL
+        name: "Population, total"
+        outcome_link: "Normalisation base for per-capita indicators"
+
+  - id: comtrade_sacu_basket
+    category: trade
+    status: active
+    description: >
+      Each SACU member's full export/import basket at the HS 2-digit
+      chapter level ("AG2" aggregate — one call per flow returns all ~97
+      chapters, rather than one call per product). This is the country-side
+      input to Phase 2's proxy Economic Complexity / Fitness computation.
+    script: scripts/fetch_comtrade_sacu_basket.py
+    workflow: .github/workflows/comtrade-sacu-basket-pull.yml
+    cadence: "weekly, Mon 07:00 UTC"
+    output: data/trade/comtrade_sacu_basket_log.csv
+    countries: sacu
+    cmd_level: "AG2"
+    flows: ["M", "X"]
+    years_lookback: 8
+    requires_secret: COMTRADE_API_KEY
+
+  - id: comtrade_world_basket
+    category: trade
+    status: active
+    description: >
+      World total exports per HS 2-digit chapter (reporterCode=0). This is
+      the RCA denominator Phase 2 needs — a country's share of world exports
+      of product k, compared to its share of world exports overall. World
+      totals shift slowly in relative terms, so this runs monthly rather
+      than weekly to conserve the free-tier call quota.
+    script: scripts/fetch_comtrade_world_basket.py
+    workflow: .github/workflows/comtrade-world-basket-pull.yml
+    cadence: "monthly, 1st 07:30 UTC"
+    output: data/trade/comtrade_world_basket_log.csv
+    reporter: "0"
+    cmd_level: "AG2"
+    flows: ["X"]
+    years_lookback: 8
+    requires_secret: COMTRADE_API_KEY
+
+  # ---------------------------------------------------------------------
+  # PLANNED — named and scoped now so Phase 5 is "fill this in", not
+  # "figure out what belongs here". Not fetched yet; no script/workflow.
+  # ---------------------------------------------------------------------
+
+  - id: agoa_status
+    category: trade_policy
+    status: planned
+    description: "AGOA eligibility review status — critical single-point risk for the garments sector."
+
+  - id: sacu_revenue_pool
+    category: fiscal
+    status: planned
+    description: "SACU customs revenue-sharing pool size and Lesotho's allocation — large, volatile share of the fiscal base."
+
+  - id: central_bank_lesotho
+    category: monetary
+    status: planned
+    description: "CBL policy releases, reserves, loti/rand peg and CMA-related data."
+
+  - id: ilostat_labour
+    category: labour
+    status: planned
+    description: "ILO modelled employment estimates and remittance-adjacent labour indicators."
+
+  - id: remittances
+    category: labour
+    status: planned
+    description: "Remittance inflows — a major informal income channel from Basotho employed in South Africa."
+
+  - id: fewsnet_climate
+    category: climate
+    status: planned
+    description: "FEWS NET / ReliefWeb drought and food-security signal — relevant to grains/poultry and agro-processing."
+
+  - id: infrastructure_capacity
+    category: infrastructure
+    status: planned
+    description: "LHWP phase progress, LEC generation capacity, WASCO — gates industrial estate capacity."
+
+  - id: governance_signal
+    category: governance
+    status: planned
+    description: "Parliament bill tracking, DCEO case activity, election calendar — investor-confidence leading indicators."
