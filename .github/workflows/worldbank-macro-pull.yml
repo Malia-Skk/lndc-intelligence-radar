@@ -1,0 +1,44 @@
+name: Macro indicator pull (World Bank, full SACU panel)
+
+on:
+  schedule:
+    - cron: "30 6 * * 1"   # weekly, Mon 06:30 UTC — offset from the legacy pull to avoid runner contention
+  workflow_dispatch: {}    # manual "Run workflow" button for testing
+
+permissions:
+  contents: write
+
+concurrency:
+  group: worldbank-macro-pull
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run World Bank macro fetch script
+        run: python scripts/fetch_worldbank_macro.py
+
+      - name: Commit and push updated log
+        run: |
+          if [ -f data/macro/worldbank_indicator_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/macro/worldbank_indicator_log.csv
+            git diff --cached --quiet || git commit -m "Update macro indicator log (SACU panel)"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No log file present this run (the fetch likely failed after retries) - nothing to commit."
+          fi

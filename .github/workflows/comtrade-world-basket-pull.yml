@@ -1,0 +1,46 @@
+name: Trade basket pull (UN Comtrade, World AG2)
+
+on:
+  schedule:
+    - cron: "30 7 1 * *"   # monthly, 1st of month 07:30 UTC — world totals shift slowly, no need for weekly quota spend
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: comtrade-world-basket-pull
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run world trade basket fetch script
+        env:
+          COMTRADE_API_KEY: ${{ secrets.COMTRADE_API_KEY }}
+        run: python scripts/fetch_comtrade_world_basket.py
+
+      - name: Commit and push updated log
+        run: |
+          if [ -f data/trade/comtrade_world_basket_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/trade/comtrade_world_basket_log.csv
+            git diff --cached --quiet || git commit -m "Update world trade basket log"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No log file present this run -- nothing to commit."
+          fi
