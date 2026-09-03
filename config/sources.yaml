@@ -101,16 +101,25 @@ sources:
 
   - id: comtrade_world_basket
     category: trade
-    status: active
+    status: deferred
     description: >
-      World total exports per HS 2-digit chapter (reporterCode=0). This is
-      the RCA denominator Phase 2 needs — a country's share of world exports
-      of product k, compared to its share of world exports overall. World
-      totals shift slowly in relative terms, so this runs monthly rather
-      than weekly to conserve the free-tier call quota.
+      DEFERRED as of the first live run: reporterCode="0" was assumed to
+      return a pre-aggregated "World reporter" total, mirroring how
+      partnerCode="0" validly means "World" as a partner. It doesn't --
+      the live run returned "Received 0 raw records," confirmed as a clean
+      empty response, not an error. Building a real global total means
+      summing every actual reporting country (~200 codes), which risks
+      guessing wrong on Comtrade's non-ISO historical numbering (India is
+      one known exception) with no way to verify from this environment.
+      Not worth the risk: Outcome 5 targets "#1 in SACU", not a global
+      rank, so Phase 2's proxy-ECI uses comtrade_sacu_basket_log.csv alone
+      (SACU-relative RCA) instead of needing this at all. Revisit only if
+      a genuinely global figure is wanted later -- the honest path then is
+      a bulk dataset (e.g. CEPII's BACI, built from Comtrade, downloadable
+      as flat files) rather than looping API calls per country.
     script: scripts/fetch_comtrade_world_basket.py
     workflow: .github/workflows/comtrade-world-basket-pull.yml
-    cadence: "monthly, 1st 07:30 UTC"
+    cadence: "disabled -- workflow_dispatch only, no schedule"
     output: data/trade/comtrade_world_basket_log.csv
     reporter: "0"
     cmd_level: "AG2"

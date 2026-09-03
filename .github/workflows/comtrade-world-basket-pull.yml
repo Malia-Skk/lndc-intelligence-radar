@@ -1,8 +1,15 @@
-name: Trade basket pull (UN Comtrade, World AG2)
+name: Trade basket pull (UN Comtrade, World AG2) [DEFERRED]
+
+# Schedule intentionally removed. First live run confirmed reporterCode="0"
+# returns a clean empty response ("Received 0 raw records"), not an error --
+# there is no pre-aggregated "World reporter" in Comtrade the way partnerCode
+# ="0" validly means "World" as a partner. See config/sources.yaml
+# (comtrade_world_basket, status: deferred) for the full reasoning and what
+# would need to be true to revisit this. Left as workflow_dispatch-only so
+# it can still be run by hand if/when that changes -- it should NOT run on
+# a schedule while it produces zero rows every time.
 
 on:
-  schedule:
-    - cron: "30 7 1 * *"   # monthly, 1st of month 07:30 UTC — world totals shift slowly, no need for weekly quota spend
   workflow_dispatch: {}
 
 permissions:
