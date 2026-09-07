@@ -127,6 +127,33 @@ sources:
     years_lookback: 8
     requires_secret: COMTRADE_API_KEY
 
+  - id: gdelt_general
+    category: news
+    status: active
+    description: >
+      General Lesotho/LNDC economic-development news signal, replacing the
+      automotive pilot's single-sector scope. Requires "Lesotho" AND at
+      least one broad economic/development term in the title (see the
+      script for the full term list) -- geographically scoped but topically
+      wide. Every article is auto-tagged by scripts/lib/tagging.py against a
+      fixed rule-based category list (textiles_apparel, mining_minerals,
+      energy_water, fdi_investment, trade_policy, labour_remittance,
+      climate_food_security, governance_political, and others -- see
+      tagging.py for the full set), matched against article titles only
+      (GDELT's DOC API doesn't return full body text in this mode, so
+      under-tagging on vague titles is expected, not a bug). An article
+      matching zero categories isn't discarded -- it's kept with an empty
+      tags field, forming a "discovery feed" of things happening that don't
+      fit an existing bucket yet. Tagging is rule-based (free, offline,
+      deterministic) rather than LLM-based for this phase; an LLM-assisted
+      fallback for ambiguous titles is a reasonable future addition once
+      the narrative layer exists, not built here.
+    script: scripts/fetch_gdelt_general.py
+    workflow: .github/workflows/gdelt-general-pull.yml
+    cadence: "daily, 06:30 UTC"
+    output: data/news/general_signal_log.csv
+    tagging_categories: scripts/lib/tagging.py (CATEGORY_KEYWORDS)
+
   # ---------------------------------------------------------------------
   # PLANNED — named and scoped now so Phase 5 is "fill this in", not
   # "figure out what belongs here". Not fetched yet; no script/workflow.

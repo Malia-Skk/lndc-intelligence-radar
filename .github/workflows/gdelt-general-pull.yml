@@ -1,0 +1,44 @@
+name: General signal pull (GDELT, auto-tagged)
+
+on:
+  schedule:
+    - cron: "30 6 * * *"   # daily, 06:30 UTC -- offset from the automotive pilot's 06:00 to avoid runner contention
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gdelt-general-pull
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run general GDELT fetch + auto-tag script
+        run: python scripts/fetch_gdelt_general.py
+
+      - name: Commit and push updated log
+        run: |
+          if [ -f data/news/general_signal_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/news/general_signal_log.csv
+            git diff --cached --quiet || git commit -m "Update general signal log"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No log file present this run (the fetch likely failed after retries) - nothing to commit."
+          fi
