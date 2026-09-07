@@ -1,0 +1,2 @@
+snapshot_date,source_filename,processed_at,total_leads,total_potential_jobs_full_capacity,total_expected_jobs_weighted,leads_by_stage,di_leads_count,di_industrialist_candidates_count,confirmed_new_industrialists_count
+2026-08-16,Pipeline2026Aug16th.xlsx,2026-09-07T08:47:47Z,26,10777,5921.5,"{'Completed': 11, 'Negotiation': 7, 'Appraisal': 6, 'Implementation': 2}",6,3,0

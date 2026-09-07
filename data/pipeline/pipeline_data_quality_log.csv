@@ -1,0 +1,15 @@
+snapshot_date,note
+2026-08-16,"Stray value 5877.0 found in headerless column 'Unnamed: 12' for 'Lucky Manufacturing Expansion' -- excluded from canonical output, not correlated with any other column for this row, likely a leftover manual-calculation artifact. Verify against the source file if this matters."
+2026-08-16,"Stray value 5877.0 found in headerless column 'Unnamed: 12' for 'Booming Lai' -- excluded from canonical output, not correlated with any other column for this row, likely a leftover manual-calculation artifact. Verify against the source file if this matters."
+2026-08-16,"Stray value 5377.0 found in headerless column 'Unnamed: 12' for 'Sail Start' -- excluded from canonical output, not correlated with any other column for this row, likely a leftover manual-calculation artifact. Verify against the source file if this matters."
+2026-08-16,"Stray value 6027.0 found in headerless column 'Unnamed: 12' for 'Joans Enterprise' -- excluded from canonical output, not correlated with any other column for this row, likely a leftover manual-calculation artifact. Verify against the source file if this matters."
+2026-08-16,"Stray value 6077.0 found in headerless column 'Unnamed: 13' for 'Tradeline Corperation' -- excluded from canonical output, not correlated with any other column for this row, likely a leftover manual-calculation artifact. Verify against the source file if this matters."
+2026-08-16,"Stray value 2127.0 found in headerless column 'Unnamed: 13' for 'DGK manufacturing' -- excluded from canonical output, not correlated with any other column for this row, likely a leftover manual-calculation artifact. Verify against the source file if this matters."
+2026-08-16,Stripped whitespace from 9 value(s) in 'Origin (FDI/DI)'.
+2026-08-16,Stripped whitespace from 7 value(s) in 'Sector'.
+2026-08-16,Stripped whitespace from 7 value(s) in 'Lead Type'.
+2026-08-16,Stripped whitespace from 8 value(s) in 'Origin'.
+2026-08-16,Stripped whitespace from 18 value(s) in 'Target Estate'.
+2026-08-16,Stripped whitespace from 12 value(s) in 'Company Name'.
+2026-08-16,"Sector contains both 'Garments' and 'Apparel' -- these may be the same category under two names. Not merged automatically (a categorisation decision, not a whitespace bug) -- confirm with LNDC whether to unify them."
+2026-08-16,Normalised 5 country-name value(s) via the alias map.

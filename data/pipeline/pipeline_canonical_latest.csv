@@ -1,0 +1,27 @@
+company_name,origin_fdi_di,sector,lead_type,stage,stage_conversion_weight,stage_probability_source,origin_country,factory_size_sqm,factory_size_status,estimated_employment_full_capacity,expected_jobs_weighted,is_new_industrialist_candidate,target_estate
+Jonsson Workwear - Project Lesedi,FDI,Garments,Expansion,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,30000.0,known,1000.0,350.0,False,Maputsoe
+Crabtree Lesotho (Pty) Ltd,FDI,Electrical components,Expansion,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",England,1000.0,known,350.0,122.5,False,Maseru
+Basotho Leisure Wear/ TradeLink,FDI,Garments,Expansion,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,10000.0,known,1200.0,1080.0,False,Belo
+ZFC LIMITED,FDI,Agro Processing,New,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",Zimbabwe,,tbd,0.0,0.0,False,Belo
+Pema Holdings,DI,Light manufacturing,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,1000.0,known,50.0,45.0,False,Maseru
+Unity T/A Headwear24,FDI,Garments,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,3000.0,known,300.0,270.0,False,Tikoe
+Novita shoes,FDI,Footwear,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,250.0,37.5,False,Belo
+Royalty Alunimium (Pty) Ltd,DI,Light manufacturing,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,3000.0,known,400.0,360.0,True,Thetsane
+Mountain Kingdom Drops,DI,Water Bottling,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,500.0,known,27.0,4.0,False,Tikoe
+Liberation clothing,FDI,Garments,Expansion,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,350.0,122.5,False,Tikoe
+MG commodities,DI,Agro Processing,Expansion,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,1000.0,known,80.0,72.0,False,Tikoe
+ROVD Lesotho (Pty) Ltd,FDI,Automotive,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,70.0,63.0,False,Tikoe
+TSH Manufacturing (Pty) Ltd,FDI,Garments,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,100.0,90.0,False,Maputsoe
+Cosmetics Hub,DI,Agro Processing,New,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,500.0,known,100.0,35.0,True,Tikoe
+Spices & Herbs Hub,DI,Agro Processing,New,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,500.0,known,100.0,35.0,True,Tikoe
+Bokamoso Impact investments,FDI,Agro Processing,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,,missing,100.0,15.0,False,
+Tradeline Corperation,FDI,Agro Processing,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",Malawi,1000.0,known,100.0,15.0,False,M/Hoek
+DGK manufacturing,FDI,Garments,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,100.0,90.0,False,Tikoe
+Lucky Manufacturing Expansion,FDI,Garments,Expansion,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",China,2000.0,known,400.0,360.0,False,Tikoe
+Leo Garments,FDI,Garments,Expansion,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",China,1000.0,known,200.0,180.0,False,Tikoe
+Booming Lai,FDI,Garments,Expansion,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",China,2000.0,known,600.0,540.0,False,Tikoe
+Sail Start,FDI,Garments,New,Implementation,0.75,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,3000.0,known,500.0,375.0,False,Tikoe
+Joans Enterprise,FDI,Garments,Expansion,Implementation,0.75,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,10000.0,known,1000.0,750.0,False,Tikoe
+Lesotho Hanma Clothing Co. Ltd,FDI,Garments,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",China,7000.0,known,1000.0,150.0,False,Tikoe
+Blaze Leather,FDI,Leather Bags,New,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,5000.0,known,2000.0,700.0,False,Belo
+Quandrad Link,FDI,Apparel,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,3000.0,known,400.0,60.0,False,Tikoe

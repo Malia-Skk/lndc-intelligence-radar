@@ -205,6 +205,43 @@ sources:
     status: planned
     description: "Parliament bill tracking, DCEO case activity, election calendar — investor-confidence leading indicators."
 
+  - id: pipeline_industrialists
+    category: investment
+    status: active
+    description: >
+      The FDI/Basotho-industrialist investment pipeline (company names,
+      deal stages, negotiation status). UNLIKE every other source in this
+      registry, there is no public API here -- this is a
+      manually-maintained spreadsheet LNDC produces periodically. An
+      earlier version of this design routed it through a separate private
+      repo with an authenticated read path, given the sensitivity of
+      company-level deal data; that was explicitly set aside in favour of
+      treating it the same as every other source here, so it is now public
+      like everything else in this repo. Cleaning is handled by
+      scripts/clean_pipeline_snapshot.py, which fixes real, confirmed
+      data-quality issues found in the actual source file (whitespace
+      inconsistency across five columns, country-name aliasing, mixed
+      numeric/"TBD" factory-size values) and computes a stage-weighted
+      "expected jobs" figure, explicitly tagged as an assumption
+      (stage_probability_source: assumption_v1) since no snapshot history
+      exists yet to derive real conversion rates from. "Estimated
+      employment at full capacity" is never treated as confirmed/realised
+      jobs -- see the script's module docstring for why. As of the first
+      snapshot (2026-08-16): 26 leads, ~10,777 potential jobs at full
+      capacity, ~5,922 weighted by assumed stage-conversion odds, 6 DI
+      (Basotho-origin) leads of which exactly 3 clear the >=100-employee
+      bar to even be CANDIDATES toward Outcome 3 -- the confirmed count of
+      actual new Basotho industrialists remains 0.
+    canonical_source_tab: "Pipeline (of the source workbook's several tabs -- others were found to disagree with it and each other)"
+    script: scripts/clean_pipeline_snapshot.py
+    workflow: .github/workflows/clean-pipeline-snapshot.yml
+    trigger: "push to data/pipeline/raw/*.xlsx, plus workflow_dispatch"
+    outputs:
+      - data/pipeline/pipeline_canonical_latest.csv
+      - data/pipeline/pipeline_canonical_<date>.csv (archived per snapshot)
+      - data/pipeline/pipeline_snapshot_archive.csv (one summary row per snapshot)
+      - data/pipeline/pipeline_data_quality_log.csv
+
 # ---------------------------------------------------------------------
 # PHASE 2 — DERIVED COMPUTATIONS
 #

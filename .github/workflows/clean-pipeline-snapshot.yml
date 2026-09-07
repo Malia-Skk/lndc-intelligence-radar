@@ -1,0 +1,63 @@
+name: Clean pipeline snapshot
+
+# Triggers whenever a new raw snapshot is pushed to data/pipeline/raw/ --
+# so the normal workflow for LNDC staff is just "drop the latest xlsx
+# export in there and push", nothing else. workflow_dispatch is also
+# available for re-running cleaning against an existing file (e.g. after
+# an EXPECTED_COLUMNS update in the script).
+
+on:
+  push:
+    paths:
+      - "data/pipeline/raw/**.xlsx"
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: "Specific file under data/pipeline/raw/ to (re)process. Leave blank to process the most recently modified one."
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: clean-pipeline-snapshot
+  cancel-in-progress: false
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Determine which file to process
+        id: pick_file
+        run: |
+          if [ -n "${{ github.event.inputs.filename }}" ]; then
+            echo "path=data/pipeline/raw/${{ github.event.inputs.filename }}" >> "$GITHUB_OUTPUT"
+          else
+            LATEST=$(ls -t data/pipeline/raw/*.xlsx | head -n 1)
+            echo "path=$LATEST" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run cleaning script
+        run: python scripts/clean_pipeline_snapshot.py "${{ steps.pick_file.outputs.path }}" --output-dir data/pipeline
+
+      - name: Commit and push cleaned output
+        run: |
+          git config user.name "lndc-radar-bot"
+          git config user.email "actions@github.com"
+          git add data/pipeline/
+          git diff --cached --quiet || git commit -m "Clean pipeline snapshot: ${{ steps.pick_file.outputs.path }}"
+          git pull --rebase origin main
+          git push
