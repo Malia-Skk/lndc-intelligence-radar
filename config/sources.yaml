@@ -404,3 +404,40 @@ computations:
     outputs:
       - data/derived/anomaly_signals_log.csv
       - data/derived/discovery_feed_log.csv
+
+  - id: forecasts
+    category: cross-cutting
+    status: active
+    description: >
+      Phase 7 -- the actual predictive-analytics piece. Projects GDP per
+      capita growth and SACU-regional complexity rank forward using OLS
+      linear trend + t-distribution prediction intervals (lib/forecast.py),
+      compared against the strategy's own stated target trajectory
+      (Ch.2: 2%/3%/5%/6%/7% GDP growth by Year 1-5, "#1 in SACU" by Year 5).
+      Fiscal years approximated to calendar years (Year 1 = FY2026/27 ->
+      2026, ..., Year 5 = FY2030/31 -> 2030) -- a real approximation,
+      stated explicitly in every output row, not hidden.
+      GDP growth is forecast on TWO windows, not one, because the data
+      demanded it: the full 16-year history's slope is negative
+      (~-0.24%/yr, dominated by the 2017-2020 decline and COVID shock)
+      while the most recent 5 years alone show a positive slope
+      (~+0.23%/yr) -- nearly a sign flip. Presenting only the full-history
+      number would be technically-not-wrong but genuinely misleading;
+      both windows are shown, clearly labelled, with neither presented as
+      "the" answer. SACU rank has shown zero variance (exactly 4th) across
+      all 6 years of history -- the model correctly projects "stays at
+      4th", with an explicit note that a mathematically zero-width
+      interval here means "no historical basis to expect change", not
+      "guaranteed to never change". Jobs/industrialist counts are
+      DELIBERATELY NOT forecast as a trend -- only one pipeline snapshot
+      exists (Phase 4), and fitting a trend to one data point would be
+      exactly the overclaiming this project has avoided everywhere else;
+      a plain status-vs-target comparison is used instead
+      (target_status_log.csv), clearly labelled as not a projection.
+    inputs: [worldbank_macro, proxy_eci, pipeline_industrialists]
+    script: scripts/compute_forecasts.py
+    workflow: .github/workflows/compute-forecasts.yml
+    trigger: "runs automatically after any of its 3 input sources updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/forecast_log.csv
+      - data/derived/target_status_log.csv
