@@ -80,6 +80,12 @@ sources:
       - code: SP.POP.TOTL
         name: "Population, total"
         outcome_link: "Normalisation base for per-capita indicators"
+      - code: BX.TRF.PWKR.CD.DT
+        name: "Personal remittances, received (current US$)"
+        outcome_link: "Phase 5 — labour/remittance domain (major informal income channel from Basotho employed in South Africa)"
+      - code: BX.TRF.PWKR.DT.GD.ZS
+        name: "Personal remittances, received (% of GDP)"
+        outcome_link: "Phase 5 — labour/remittance domain, normalised"
 
   - id: comtrade_sacu_basket
     category: trade
@@ -167,43 +173,124 @@ sources:
 
   - id: agoa_status
     category: trade_policy
-    status: planned
-    description: "AGOA eligibility review status — critical single-point risk for the garments sector."
+    status: deferred_no_free_api
+    description: >
+      AGOA eligibility review status — critical single-point risk for the
+      garments sector. Checked in Phase 5: AGOA eligibility determinations
+      are published via USTR/Federal Register notices and press releases,
+      not a structured API. Building a scraper against a government
+      notice page is exactly the kind of fragile, high-maintenance
+      dependency this project has otherwise avoided -- one page redesign
+      silently breaks it with no error a free-tier API would surface.
+      Real, partial coverage already exists via gdelt_general's
+      trade_policy bucket (explicitly includes "AGOA" as a search term) --
+      see the actual AGOA renewal story that surfaced in Phase 3's first
+      live run. Revisit only if USTR/AGOA.gov ever exposes a real feed.
 
   - id: sacu_revenue_pool
     category: fiscal
-    status: planned
-    description: "SACU customs revenue-sharing pool size and Lesotho's allocation — large, volatile share of the fiscal base."
+    status: deferred_no_free_api
+    description: >
+      SACU customs revenue-sharing pool size and Lesotho's allocation —
+      large, volatile share of the fiscal base. Checked in Phase 5: this
+      is published via SACU Secretariat annual reports and member states'
+      national budget speeches (PDFs), not an API. Same reasoning as
+      agoa_status -- a PDF-scraper is fragile in a way a free API isn't.
+      Partial coverage exists via gdelt_general's fiscal_sacu tag and
+      policy_finance query bucket. IMF Article IV consultation reports
+      (also PDF, published annually, freely downloadable) are the best
+      actual source of this figure if a human wants to read it directly --
+      not a candidate for automated ingestion the same way.
 
   - id: central_bank_lesotho
     category: monetary
-    status: planned
-    description: "CBL policy releases, reserves, loti/rand peg and CMA-related data."
+    status: deferred_no_free_api
+    description: >
+      CBL policy releases, reserves, loti/rand peg and CMA-related data.
+      Checked in Phase 5: Lesotho's central bank, like most small-country
+      central banks, publishes through PDF releases and its own website,
+      not a structured API. Partial coverage exists via gdelt_general's
+      monetary_currency tag and policy_finance query bucket (explicitly
+      includes "central bank" and "loti" as search terms).
 
   - id: ilostat_labour
     category: labour
-    status: planned
-    description: "ILO modelled employment estimates and remittance-adjacent labour indicators."
+    status: deferred
+    description: >
+      ILO modelled employment estimates and remittance-adjacent labour
+      indicators. ILOSTAT does have a real, documented API (SDMX-based),
+      unlike the three sources above -- this isn't a "no free API exists"
+      case. Deferred instead because the exact SDMX query syntax needs
+      live verification I can't do from this environment, and the core
+      labour-market need is already reasonably served by
+      worldbank_macro's SL.UEM.TOTL.ZS (unemployment) and the new
+      remittance indicators added in Phase 5 -- the marginal value of
+      getting SDMX syntax right on the first guess didn't justify the
+      risk right now. Worth revisiting on its own once someone can verify
+      a real ILOSTAT API call, rather than guessed at blind alongside five
+      other new sources at once.
 
   - id: remittances
     category: labour
-    status: planned
-    description: "Remittance inflows — a major informal income channel from Basotho employed in South Africa."
+    status: superseded_by_worldbank_macro
+    description: >
+      Remittance inflows — a major informal income channel from Basotho
+      employed in South Africa. As of Phase 5, covered by two indicators
+      added directly to worldbank_macro (BX.TRF.PWKR.CD.DT and
+      BX.TRF.PWKR.DT.GD.ZS) rather than a separate source — this is a
+      country-level annual aggregate, not the granular remittance-corridor
+      or migrant-worker-count detail a dedicated source might eventually
+      offer, but it's real, free, and already flowing through a proven
+      pipeline with zero new code. This entry stays in the registry to
+      record that decision, not because a separate fetch is still needed.
 
-  - id: fewsnet_climate
+  - id: reliefweb_signals
     category: climate
-    status: planned
-    description: "FEWS NET / ReliefWeb drought and food-security signal — relevant to grains/poultry and agro-processing."
+    status: active
+    description: >
+      Humanitarian/food-security/climate signal for Lesotho via the
+      ReliefWeb API (api.reliefweb.int) -- relevant to grains/poultry and
+      agro-processing. FEWS NET itself (the original idea for this entry)
+      doesn't appear to expose a comparable free structured API on the
+      same tier as ReliefWeb's -- ReliefWeb aggregates situation reports,
+      appeals, and disaster updates from many sources including FEWS
+      NET-adjacent content, so it's used here as the actual mechanism.
+      UNVERIFIED AGAINST LIVE DATA as of this commit -- ReliefWeb's exact
+      response field structure was written from documented/general
+      knowledge of the API, not confirmed against a live call (no network
+      access to api.reliefweb.int from the build environment). Trigger via
+      workflow_dispatch and check the run log before trusting this on a
+      schedule -- see PHASE5_SUMMARY.md.
+    script: scripts/fetch_reliefweb_signals.py
+    workflow: .github/workflows/reliefweb-signal-pull.yml
+    cadence: "daily, 06:45 UTC"
+    output: data/climate/reliefweb_signal_log.csv
 
   - id: infrastructure_capacity
     category: infrastructure
-    status: planned
-    description: "LHWP phase progress, LEC generation capacity, WASCO — gates industrial estate capacity."
+    status: deferred_no_free_api
+    description: >
+      LHWP phase progress, LEC generation capacity, WASCO — gates
+      industrial estate capacity. Checked in Phase 5: none of these three
+      utilities/projects expose a public API; LHWP publishes periodic
+      technical progress reports (PDF), LEC and WASCO have no known open
+      data feed. Partial coverage exists via gdelt_general's energy_water
+      tag and infrastructure_risk query bucket (explicitly includes
+      "Highlands Water" and "electricity" as search terms) -- see the LEC
+      governance story that surfaced in Phase 3's first live run.
 
   - id: governance_signal
     category: governance
-    status: planned
-    description: "Parliament bill tracking, DCEO case activity, election calendar — investor-confidence leading indicators."
+    status: deferred_no_free_api
+    description: >
+      Parliament bill tracking, DCEO case activity, election calendar —
+      investor-confidence leading indicators. Checked in Phase 5: no
+      structured API found for any of these -- Lesotho's Parliament and
+      DCEO publish through their own websites and press statements, not
+      open data feeds. Partial coverage exists via gdelt_general's
+      governance_political tag and the "parliament" term already in the
+      emerging_niche query bucket -- see the PM/AU-summit story that
+      surfaced in Phase 3's first live run.
 
   - id: pipeline_industrialists
     category: investment

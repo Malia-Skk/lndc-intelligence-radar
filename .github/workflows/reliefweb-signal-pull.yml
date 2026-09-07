@@ -1,0 +1,44 @@
+name: Climate/food-security signal pull (ReliefWeb)
+
+on:
+  schedule:
+    - cron: "45 6 * * *"   # daily, 06:45 UTC -- offset from the other two daily pulls (06:00 automotive, 06:30 general)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: reliefweb-signal-pull
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run ReliefWeb fetch script
+        run: python scripts/fetch_reliefweb_signals.py
+
+      - name: Commit and push updated log
+        run: |
+          if [ -f data/climate/reliefweb_signal_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/climate/reliefweb_signal_log.csv
+            git diff --cached --quiet || git commit -m "Update ReliefWeb signal log"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No log file present this run -- nothing to commit."
+          fi
