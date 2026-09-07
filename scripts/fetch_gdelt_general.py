@@ -25,6 +25,7 @@ Requiring both is a deliberate precision/recall tradeoff, not an oversight
 """
 import csv
 import datetime
+import json
 import os
 import sys
 import time
@@ -82,7 +83,20 @@ MAXRECORDS_CAP = PARAMS["maxrecords"]
 
 def fetch_signals():
     last_error = None
+    # Once we've seen an explicit 429 this run, treat any SUBSEQUENT failure
+    # as very likely the same throttle rather than a fresh, unrelated
+    # problem -- GDELT's free API doesn't always return a proper 429 status
+    # once you're already being throttled; sometimes it's a 200 with a
+    # plain-text/HTML notice instead, which fails JSON parsing with a
+    # generic "Expecting value" error that looks unrelated if you don't
+    # already know a 429 just happened. Giving that case the SHORT generic
+    # retry wait instead of the LONG rate-limit wait means hammering an
+    # endpoint that just told us to back off -- likely counterproductive,
+    # not just ineffective.
+    already_throttled_this_run = False
+
     for attempt in range(1, MAX_ATTEMPTS + 1):
+        response = None
         try:
             print(f"Attempt {attempt} of {MAX_ATTEMPTS}: calling GDELT...")
             response = requests.get(API_URL, params=PARAMS, timeout=TIMEOUT_SECONDS)
@@ -90,6 +104,7 @@ def fetch_signals():
             if response.status_code == 429:
                 wait = int(response.headers.get("Retry-After", RATE_LIMIT_WAIT_SECONDS))
                 last_error = "429 Too Many Requests"
+                already_throttled_this_run = True
                 print(f"Attempt {attempt} was rate-limited (429).")
                 if attempt < MAX_ATTEMPTS:
                     print(f"Waiting {wait}s before retrying (rate-limit backoff)...")
@@ -97,17 +112,26 @@ def fetch_signals():
                 continue
 
             response.raise_for_status()
-            if not response.text.strip():
+            body = response.text
+            if not body.strip():
                 raise ValueError("GDELT returned an empty response body")
-            payload = response.json()
+            payload = json.loads(body)  # explicit call (not response.json()) so we control the error path below
             return payload.get("articles", [])
 
         except (requests.exceptions.RequestException, ValueError) as err:
             last_error = err
             print(f"Attempt {attempt} failed: {err}")
+            if response is not None:
+                # This is the diagnostic that was missing last time -- if
+                # this happens again, the log will show WHAT GDELT actually
+                # sent back instead of just the generic JSON parse error.
+                print(f"  Response status: {response.status_code}")
+                print(f"  Response snippet (first 300 chars): {response.text[:300]!r}")
+
+            wait = RATE_LIMIT_WAIT_SECONDS if already_throttled_this_run else RETRY_WAIT_SECONDS
             if attempt < MAX_ATTEMPTS:
-                print(f"Waiting {RETRY_WAIT_SECONDS}s before retrying...")
-                time.sleep(RETRY_WAIT_SECONDS)
+                print(f"Waiting {wait}s before retrying...")
+                time.sleep(wait)
 
     print(f"All {MAX_ATTEMPTS} attempts failed. Skipping this run cleanly. Last error: {last_error}")
     return None
