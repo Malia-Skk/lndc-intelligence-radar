@@ -14,7 +14,7 @@ ROVD Lesotho (Pty) Ltd,FDI,Automotive,New,Completed,0.9,"assumption_v1 -- not ye
 TSH Manufacturing (Pty) Ltd,FDI,Garments,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,100.0,90.0,False,Maputsoe
 Cosmetics Hub,DI,Agro Processing,New,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,500.0,known,100.0,35.0,True,Tikoe
 Spices & Herbs Hub,DI,Agro Processing,New,Negotiation,0.35,"assumption_v1 -- not yet empirically derived, no snapshot history available",Lesotho,500.0,known,100.0,35.0,True,Tikoe
-Bokamoso Impact investments,FDI,Agro Processing,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,,missing,100.0,15.0,False,nan
+Bokamoso Impact investments,FDI,Agro Processing,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,,missing,100.0,15.0,False,
 Tradeline Corperation,FDI,Agro Processing,New,Appraisal,0.15,"assumption_v1 -- not yet empirically derived, no snapshot history available",Malawi,1000.0,known,100.0,15.0,False,M/Hoek
 DGK manufacturing,FDI,Garments,New,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",South Africa,2000.0,known,100.0,90.0,False,Tikoe
 Lucky Manufacturing Expansion,FDI,Garments,Expansion,Completed,0.9,"assumption_v1 -- not yet empirically derived, no snapshot history available",China,2000.0,known,400.0,360.0,False,Tikoe
