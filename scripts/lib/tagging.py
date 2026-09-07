@@ -44,18 +44,18 @@ import re
 # name but the economy runs on).
 CATEGORY_KEYWORDS = {
     "textiles_apparel": [
-        "apparel", "garment", "textile", "clothing", "cut-make-trim", "cmt",
+        "apparel", "garment", "garments", "textile", "textiles", "clothing", "cut-make-trim", "cmt",
         "denim", "knitwear", "cotton mill", "yarn",
     ],
     "agriculture_agroprocessing": [
-        "agriculture", "agro-processing", "agroprocessing", "farming", "grain",
-        "poultry", "livestock", "crop", "herder", "irrigation",
+        "agriculture", "agro-processing", "agroprocessing", "farming", "grain", "grains",
+        "poultry", "livestock", "crop", "crops", "herder", "irrigation",
     ],
     "wool_mohair_cashmere": [
         "wool", "mohair", "cashmere", "angora", "fleece",
     ],
     "mining_minerals": [
-        "diamond", "mining", "mine", "mineral", "quarry", "gemstone", "kimberlite",
+        "diamond", "diamonds", "mining", "mine", "mineral", "minerals", "quarry", "quarries", "gemstone", "kimberlite",
     ],
     "energy_water": [
         "electricity", "power station", "hydropower", "hydro-power",
@@ -63,7 +63,7 @@ CATEGORY_KEYWORDS = {
         "energy supply",
     ],
     "tourism_mice": [
-        "tourism", "tourist", "mice tourism", "conference centre", "convention centre",
+        "tourism", "tourist", "tourists", "mice tourism", "conference centre", "convention centre",
         "hospitality sector", "hotel investment",
     ],
     "ict_data": [
@@ -71,15 +71,15 @@ CATEGORY_KEYWORDS = {
         "fibre network", "tech hub",
     ],
     "manufacturing_industrial": [
-        "factory", "manufacturing", "industrial estate", "industrial park",
+        "factory", "factories", "manufacturing", "industrial estate", "industrial park",
         "industrialist", "production line",
     ],
     "fdi_investment": [
-        "foreign direct investment", "fdi", "investor", "investment",
+        "foreign direct investment", "fdi", "investor", "investors", "investment", "investments",
         "joint venture", "groundbreaking", "factory opening", "capital injection",
     ],
     "trade_policy": [
-        "agoa", "tariff", "trade agreement", "export ban", "import quota",
+        "agoa", "tariff", "tariffs", "trade agreement", "export ban", "import quota",
         "customs union", "trade preference",
     ],
     "fiscal_sacu": [
@@ -87,20 +87,21 @@ CATEGORY_KEYWORDS = {
         "government spending", "tax revenue",
     ],
     "monetary_currency": [
-        "loti", "rand peg", "central bank of lesotho", "cbl", "interest rate",
+        "loti", "rand peg", "central bank of lesotho", "cbl", "interest rate", "interest rates",
         "inflation rate", "currency peg",
     ],
     "labour_remittance": [
-        "remittance", "migrant worker", "mineworker", "unemployment",
+        "remittance", "remittances", "migrant worker", "mineworker", "unemployment",
         "labour union", "trade union", "strike action", "job losses", "layoffs",
         "minimum wage",
     ],
     "climate_food_security": [
-        "drought", "flood", "climate change", "food security", "crop failure",
-        "famine", "food insecurity",
+        "drought", "droughts", "flood", "flooding", "flooded",
+        "climate change", "food security", "crop failure", "crop failures",
+        "famine", "food insecurity", "severe weather", "heavy rain",
     ],
     "governance_political": [
-        "parliament", "election", "corruption", "dceo", "high court",
+        "parliament", "election", "elections", "corruption", "dceo", "high court",
         "prime minister", "cabinet reshuffle", "coalition government",
     ],
     "transport_logistics": [

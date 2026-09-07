@@ -369,3 +369,38 @@ computations:
     outputs:
       - data/derived/proxy_eci_log.csv
       - data/derived/proxy_eci_top_products_log.csv
+
+  - id: anomaly_signals
+    category: cross-cutting
+    status: active
+    description: >
+      Phase 6 -- anomaly detection across every long-running numeric
+      series already ingested (macro, trade, proxy-ECI), plus a news
+      discovery feed. Method: for each series, is the latest
+      period-over-period change unusual relative to that series' own
+      historical changes (z-score against prior changes, min 3 prior
+      changes required to evaluate at all)? Deliberately a simple
+      screening heuristic, not a rigorous statistical test -- see
+      lib/anomaly.py's docstring. Trade series are pre-filtered to those
+      accounting for >=0.5% of that reporter's own total trade (a
+      RELATIVE threshold, not an absolute dollar amount, so Lesotho's
+      meaningful products aren't crowded out by South Africa's larger
+      economy) -- checked against real data before picking that number
+      (272 of 968 series, 56 of them Lesotho's). Verified against this
+      project's actual live data: correctly re-discovered and quantified
+      a real, dramatic jump already informally noted much earlier in this
+      project (Lesotho's beverages/spirits exports: steady $57-86M for six
+      years, then $188M in 2024, z=8.2) -- confirming the method surfaces
+      genuinely real signal, not noise. The discovery feed (untagged
+      gdelt_general articles) is a surfacing of existing data, not a
+      statistical computation -- there isn't enough news-pull history yet
+      for a volume-anomaly check on tag frequency, though that's a direct
+      future extension of the same lib/anomaly.py function once enough
+      daily runs accumulate.
+    inputs: [worldbank_macro, comtrade_sacu_basket, proxy_eci, gdelt_general]
+    script: scripts/compute_signals.py
+    workflow: .github/workflows/compute-signals.yml
+    trigger: "runs automatically after any of its 4 input sources updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/anomaly_signals_log.csv
+      - data/derived/discovery_feed_log.csv
