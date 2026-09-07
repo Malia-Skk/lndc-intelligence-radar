@@ -1,0 +1,51 @@
+name: Compute forecasts vs strategy targets
+
+on:
+  workflow_run:
+    workflows:
+      - "Macro indicator pull (World Bank, full SACU panel)"
+      - "Compute proxy Economic Complexity (SACU-regional)"
+      - "Clean pipeline snapshot"
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: compute-forecasts
+  cancel-in-progress: false
+
+jobs:
+  compute:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run forecasting computation
+        run: python scripts/compute_forecasts.py
+
+      - name: Commit and push updated output
+        run: |
+          if [ -f data/derived/forecast_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/derived/forecast_log.csv data/derived/target_status_log.csv
+            git diff --cached --quiet || git commit -m "Recompute forecasts vs strategy targets"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No output file present this run -- nothing to commit."
+          fi
