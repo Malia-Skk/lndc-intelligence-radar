@@ -43,3 +43,20 @@ def get_country_group(group_name, path=REGISTRY_PATH):
     if group_name not in groups:
         raise KeyError(f"No country group '{group_name}' in registry. Available groups: {list(groups)}")
     return groups[group_name]
+
+
+def get_computation(computation_id, path=REGISTRY_PATH):
+    """Same idea as get_source(), but looks in the `computations` list --
+    derived/computed steps that read already-ingested data rather than
+    calling an external API. Resolves `min_countries_required: <group_name>`
+    the same way get_source() resolves `countries:`."""
+    registry = load_registry(path)
+    for comp in registry.get("computations", []):
+        if comp.get("id") == computation_id:
+            comp = dict(comp)
+            countries_ref = comp.get("min_countries_required")
+            if isinstance(countries_ref, str):
+                comp["min_countries_required"] = get_country_group(countries_ref, path)
+            return comp
+    available = [c.get("id") for c in registry.get("computations", [])]
+    raise KeyError(f"No computation '{computation_id}' in registry. Available ids: {available}")

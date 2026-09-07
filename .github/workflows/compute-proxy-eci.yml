@@ -1,0 +1,52 @@
+name: Compute proxy Economic Complexity (SACU-regional)
+
+on:
+  workflow_run:
+    workflows: ["Trade basket pull (UN Comtrade, SACU AG2)"]
+    types: [completed]
+  workflow_dispatch: {}   # manual "Run workflow" button for testing
+
+permissions:
+  contents: write
+
+concurrency:
+  group: compute-proxy-eci
+  cancel-in-progress: false
+
+jobs:
+  compute:
+    # Only proceed automatically if the upstream fetch actually succeeded --
+    # recomputing off a failed/partial fetch would silently bake a bad run
+    # into the output. Manual workflow_dispatch runs always proceed (there's
+    # no workflow_run event to check in that case).
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run proxy-ECI computation
+        run: python scripts/compute_proxy_eci.py
+
+      - name: Commit and push updated output
+        run: |
+          if [ -f data/derived/proxy_eci_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/derived/proxy_eci_log.csv data/derived/proxy_eci_top_products_log.csv
+            git diff --cached --quiet || git commit -m "Recompute proxy Economic Complexity (SACU-regional)"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No output file present this run -- nothing to commit."
+          fi

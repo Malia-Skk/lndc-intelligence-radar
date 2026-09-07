@@ -171,3 +171,35 @@ sources:
     category: governance
     status: planned
     description: "Parliament bill tracking, DCEO case activity, election calendar — investor-confidence leading indicators."
+
+# ---------------------------------------------------------------------
+# PHASE 2 — DERIVED COMPUTATIONS
+#
+# Unlike `sources` above, these don't call an external API — they read
+# already-ingested data and compute something new from it. They therefore
+# fully overwrite their output on every run (not append-and-dedup like a
+# fetch script), since a recomputation should always reflect the complete,
+# current state of its inputs, not accumulate a history of past runs.
+# ---------------------------------------------------------------------
+
+computations:
+
+  - id: proxy_eci
+    category: macro
+    status: active
+    description: >
+      Proxy Economic Complexity for Lesotho and SACU peers, computed via the
+      Fitness-Complexity algorithm (Tacchella, Cristelli & Pietronero 2012)
+      on a SACU-regional Revealed Comparative Advantage matrix. Explicitly a
+      SACU-relative proxy, not a globally-comparable ECI — Lesotho has no
+      official Atlas score, and computing a true global one was deferred
+      (see comtrade_world_basket above). This is directly aligned with
+      Outcome 5's actual target ("#1 in SACU"), not a workaround for it.
+    inputs: [comtrade_sacu_basket]
+    min_countries_required: sacu   # a year is skipped entirely if any SACU country is missing export data for it
+    script: scripts/compute_proxy_eci.py
+    workflow: .github/workflows/compute-proxy-eci.yml
+    trigger: "runs automatically after comtrade_sacu_basket finishes updating, plus workflow_dispatch"
+    outputs:
+      - data/derived/proxy_eci_log.csv
+      - data/derived/proxy_eci_top_products_log.csv
