@@ -147,16 +147,38 @@ def find_expected_columns(df):
 
 
 def strip_whitespace_everywhere(df, text_columns):
+    """Strips whitespace from string values, explicitly preserving true
+    missing values as missing rather than converting them to text.
+
+    This is NOT the obvious `df[col].astype(str).str.strip()` approach --
+    that was tried, tested, and shipped, and then confirmed to corrupt real
+    data in production. `.astype(str)` on an entire pandas column
+    containing NaN is version-dependent: pandas 2.x turns NaN into the
+    literal three-character string "nan" (confirmed directly: this
+    happened to a real row in a real production run, converting a missing
+    Target Estate into the text "nan"); pandas 3.x preserves it as a true
+    NaN. Depending on undocumented version behavior for correctness is
+    exactly the kind of mistake this project is supposed to catch, not
+    make -- so this loops per-value instead, checking pd.isna() explicitly
+    before ever touching the value, which is correct on any pandas version
+    by construction rather than by accident of what happened to be
+    installed when it was tested."""
     quality_notes = []
     for col in text_columns:
-        before = df[col].astype(str)
-        after = before.str.strip()
-        changed = (before != after) & df[col].notna()
-        if changed.any():
-            quality_notes.append(
-                f"Stripped whitespace from {int(changed.sum())} value(s) in '{col}'."
-            )
-        df[col] = after
+        n_changed = 0
+        cleaned_values = []
+        for value in df[col]:
+            if pd.isna(value):
+                cleaned_values.append(value)  # never stringify a true missing value
+                continue
+            original_text = str(value)
+            stripped_text = original_text.strip()
+            if stripped_text != original_text:
+                n_changed += 1
+            cleaned_values.append(stripped_text)
+        if n_changed:
+            quality_notes.append(f"Stripped whitespace from {n_changed} value(s) in '{col}'.")
+        df[col] = cleaned_values
     return df, quality_notes
 
 
