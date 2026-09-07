@@ -1,17 +1,26 @@
 """
 Phase 5 — ReliefWeb humanitarian/climate/food-security signal for Lesotho.
 
-UNVERIFIED AGAINST LIVE DATA -- api.reliefweb.int is not reachable from the
-environment this was built in (network access restricted to package
-registries and github.com). The request shape and response parsing below
-were written from documented/general knowledge of the ReliefWeb API
-(https://reliefweb.int/help/api), not confirmed against a real response.
-This is a genuinely different situation from every previous phase's first
-build: GDELT, Comtrade, and the World Bank API are all sources this
-project had already made at least one successful live call against before
-this was written. This one hasn't. Trigger via workflow_dispatch and read
-the run log's diagnostic output BEFORE trusting this on a schedule -- see
-PHASE5_SUMMARY.md for exactly what to check.
+UPDATE after first live test: the initial version of this script pointed
+at /v1/reports and got a clean, unambiguous 410 error: "The API version
+'v1' has been decommissioned. Please use version 'v2' instead." Fixed
+below. ReliefWeb's own documentation states v2 is fully compatible with
+v1's parameter structure, so nothing else about the request needed to
+change -- just the URL.
+
+STILL UNVERIFIED, WATCH FOR THIS ON THE NEXT RUN: ReliefWeb's
+documentation states "From 1 November 2025, you need to use a
+pre-approved appname" for ALL API versions, not just the separate
+Publishing API. `appname=lndc-intelligence-radar` below is a string I
+picked, not something confirmed pre-approved. If the next run fails with
+a 401/403 (rather than succeeding, or the previous 410), that's almost
+certainly this -- the fix at that point is registering/requesting an
+approved appname with ReliefWeb/OCHA, not another code change. Also still
+unverified: the exact response field structure (fields.title,
+fields.date.created, fields.source[].name, etc.) -- see to_rows() below,
+which degrades gracefully rather than crashing if these guesses are wrong,
+and the run log prints the raw shape of the first report received so a
+mismatch is immediately visible.
 
 WHY RELIEFWEB AND NOT FEWS NET DIRECTLY: FEWS NET's own site doesn't
 appear to expose a comparably documented, free, structured API. ReliefWeb
@@ -35,7 +44,7 @@ import requests
 sys.path.insert(0, os.path.dirname(__file__))
 from lib.csv_log import append_new_rows, utc_now_iso  # noqa: E402
 
-API_URL = "https://api.reliefweb.int/v1/reports"
+API_URL = "https://api.reliefweb.int/v2/reports"
 
 PARAMS = {
     "appname": "lndc-intelligence-radar",

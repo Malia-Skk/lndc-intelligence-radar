@@ -255,12 +255,18 @@ sources:
       same tier as ReliefWeb's -- ReliefWeb aggregates situation reports,
       appeals, and disaster updates from many sources including FEWS
       NET-adjacent content, so it's used here as the actual mechanism.
-      UNVERIFIED AGAINST LIVE DATA as of this commit -- ReliefWeb's exact
-      response field structure was written from documented/general
-      knowledge of the API, not confirmed against a live call (no network
-      access to api.reliefweb.int from the build environment). Trigger via
-      workflow_dispatch and check the run log before trusting this on a
-      schedule -- see PHASE5_SUMMARY.md.
+      First live test caught a real, confirmed bug (pointed at the
+      decommissioned /v1/ endpoint; the API's own error message named the
+      fix -- switched to /v2/, confirmed compatible per ReliefWeb's own
+      docs). STILL TO VERIFY: ReliefWeb requires a pre-approved appname as
+      of 1 Nov 2025 -- the placeholder appname used here
+      ("lndc-intelligence-radar") is not confirmed pre-approved; a
+      401/403 on the next run would confirm this needs registering with
+      ReliefWeb/OCHA rather than another code fix. Exact response field
+      structure (fields.title, fields.source[].name, etc.) is also still
+      unconfirmed against real data -- degrades gracefully if wrong, but
+      check the run log's printed sample before trusting this on a
+      schedule.
     script: scripts/fetch_reliefweb_signals.py
     workflow: .github/workflows/reliefweb-signal-pull.yml
     cadence: "daily, 06:45 UTC"
