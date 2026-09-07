@@ -132,22 +132,28 @@ sources:
     status: active
     description: >
       General Lesotho/LNDC economic-development news signal, replacing the
-      automotive pilot's single-sector scope. Requires "Lesotho" AND at
-      least one broad economic/development term in the title (see the
-      script for the full term list) -- geographically scoped but topically
-      wide. Every article is auto-tagged by scripts/lib/tagging.py against a
-      fixed rule-based category list (textiles_apparel, mining_minerals,
-      energy_water, fdi_investment, trade_policy, labour_remittance,
-      climate_food_security, governance_political, and others -- see
-      tagging.py for the full set), matched against article titles only
-      (GDELT's DOC API doesn't return full body text in this mode, so
-      under-tagging on vague titles is expected, not a bug). An article
-      matching zero categories isn't discarded -- it's kept with an empty
-      tags field, forming a "discovery feed" of things happening that don't
-      fit an existing bucket yet. Tagging is rule-based (free, offline,
-      deterministic) rather than LLM-based for this phase; an LLM-assisted
-      fallback for ambiguous titles is a reasonable future addition once
-      the narrative layer exists, not built here.
+      automotive pilot's single-sector scope. REVISED after a live run: the
+      first version used one query with ~30 OR'd terms, which GDELT rejected
+      outright ("Your query was too short or too long", HTTP 200) --
+      confirmed evidence of a real complexity/length limit, not a guess.
+      Now split into 5 smaller query buckets (trade_investment,
+      industry_sectors, policy_finance, infrastructure_risk,
+      emerging_niche), each sized like the automotive pilot's proven,
+      already-working query (~6-9 terms), run sequentially and merged with
+      cross-bucket URL dedup. Every article is auto-tagged by
+      scripts/lib/tagging.py against a fixed rule-based category list
+      (textiles_apparel, mining_minerals, energy_water, fdi_investment,
+      trade_policy, labour_remittance, climate_food_security,
+      governance_political, and others -- see tagging.py for the full set),
+      matched against article titles only (GDELT's DOC API doesn't return
+      full body text in this mode, so under-tagging on vague titles is
+      expected, not a bug). An article matching zero categories isn't
+      discarded -- it's kept with an empty tags field, forming a "discovery
+      feed" of things happening that don't fit an existing bucket yet.
+      Tagging is rule-based (free, offline, deterministic) rather than
+      LLM-based for this phase; an LLM-assisted fallback for ambiguous
+      titles is a reasonable future addition once the narrative layer
+      exists, not built here.
     script: scripts/fetch_gdelt_general.py
     workflow: .github/workflows/gdelt-general-pull.yml
     cadence: "daily, 06:30 UTC"
