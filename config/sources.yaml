@@ -246,7 +246,7 @@ sources:
 
   - id: reliefweb_signals
     category: climate
-    status: active
+    status: blocked_pending_appname_approval
     description: >
       Humanitarian/food-security/climate signal for Lesotho via the
       ReliefWeb API (api.reliefweb.int) -- relevant to grains/poultry and
@@ -255,18 +255,21 @@ sources:
       same tier as ReliefWeb's -- ReliefWeb aggregates situation reports,
       appeals, and disaster updates from many sources including FEWS
       NET-adjacent content, so it's used here as the actual mechanism.
-      First live test caught a real, confirmed bug (pointed at the
-      decommissioned /v1/ endpoint; the API's own error message named the
-      fix -- switched to /v2/, confirmed compatible per ReliefWeb's own
-      docs). STILL TO VERIFY: ReliefWeb requires a pre-approved appname as
-      of 1 Nov 2025 -- the placeholder appname used here
-      ("lndc-intelligence-radar") is not confirmed pre-approved; a
-      401/403 on the next run would confirm this needs registering with
-      ReliefWeb/OCHA rather than another code fix. Exact response field
-      structure (fields.title, fields.source[].name, etc.) is also still
-      unconfirmed against real data -- degrades gracefully if wrong, but
-      check the run log's printed sample before trusting this on a
-      schedule.
+      Two real issues found and fixed via live testing: (1) pointed at the
+      decommissioned /v1/ endpoint -- the API's own error named the fix,
+      switched to /v2/, confirmed compatible per ReliefWeb's own docs.
+      (2) NOW BLOCKED ON: ReliefWeb requires a pre-approved appname as of
+      1 Nov 2025 -- confirmed via a live 403: "You are not using an
+      approved appname. Kindly request an appname from ReliefWeb here:
+      https://apidoc.reliefweb.int/parameters#appname". This is an
+      external administrative step (someone at LNDC requesting/
+      registering an appname, likely a domain like lndc.org.ls per the
+      docs' guidance), not a code fix -- nothing else can be verified
+      (including whether the assumed response field structure --
+      fields.title, fields.source[].name, etc. -- is even correct) until
+      this is resolved and a real 200 response comes back. Once an
+      approved appname exists, updating PARAMS["appname"] in the script
+      is a one-line change.
     script: scripts/fetch_reliefweb_signals.py
     workflow: .github/workflows/reliefweb-signal-pull.yml
     cadence: "daily, 06:45 UTC"
