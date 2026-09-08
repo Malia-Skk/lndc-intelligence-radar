@@ -1,0 +1,103 @@
+computed_at,country,from_year,to_year,cmd_code,cmd_desc,change_type,rca_before,rca_after
+2026-09-08T05:39:29Z,Botswana,2018,2019,25,"Salt; sulphur; earths, stone; plastering materials, lime and cement",lost,1.038,0.63
+2026-09-08T05:39:29Z,Botswana,2018,2019,49,"Printed books, newspapers, pictures and other products of the printing industry; manuscripts, typescripts and plans",lost,1.762,0.063
+2026-09-08T05:39:29Z,Botswana,2018,2019,63,"Textiles, made up articles; sets; worn clothing and worn textile articles; rags",lost,1.122,0.909
+2026-09-08T05:39:29Z,Eswatini,2018,2019,14,Vegetable plaiting materials; vegetable products not elsewhere specified or included,lost,1.455,0.337
+2026-09-08T05:39:29Z,Eswatini,2018,2019,29,Organic chemicals,emerged,0.791,2.148
+2026-09-08T05:39:29Z,Lesotho,2018,2019,23,"Food industries, residues and wastes thereof; prepared animal fodder",emerged,0.78,1.091
+2026-09-08T05:39:29Z,Lesotho,2018,2019,50,Silk,lost,1.294,0.663
+2026-09-08T05:39:29Z,Lesotho,2018,2019,53,Vegetable textile fibres; paper yarn and woven fabrics of paper yarn,emerged,0.005,9.044
+2026-09-08T05:39:29Z,Lesotho,2018,2019,54,Man-made filaments; strip and the like of man-made textile materials,emerged,0.997,1.132
+2026-09-08T05:39:29Z,Namibia,2018,2019,24,Tobacco and manufactured tobacco substitutes,lost,1.352,0.747
+2026-09-08T05:39:29Z,Namibia,2018,2019,26,"Ores, slag and ash",emerged,0.976,1.291
+2026-09-08T05:39:29Z,Namibia,2018,2019,40,Rubber and articles thereof,emerged,0.686,1.018
+2026-09-08T05:39:29Z,Namibia,2018,2019,44,Wood and articles of wood; wood charcoal,emerged,0.775,1.414
+2026-09-08T05:39:29Z,Namibia,2018,2019,68,"Stone, plaster, cement, asbestos, mica or similar materials; articles thereof",emerged,0.725,1.676
+2026-09-08T05:39:29Z,Namibia,2018,2019,78,Lead and articles thereof,lost,2.349,0.942
+2026-09-08T05:39:29Z,Namibia,2018,2019,86,"Railway, tramway locomotives, rolling-stock and parts thereof; railway or tramway track fixtures and fittings and parts thereof; mechanical (including electro-mechanical) traffic signalling equipment of all kinds",lost,1.066,0.083
+2026-09-08T05:39:29Z,Namibia,2018,2019,89,"Ships, boats and floating structures",lost,12.159,0.624
+2026-09-08T05:39:29Z,South Africa,2018,2019,49,"Printed books, newspapers, pictures and other products of the printing industry; manuscripts, typescripts and plans",emerged,0.939,1.046
+2026-09-08T05:39:29Z,South Africa,2018,2019,78,Lead and articles thereof,emerged,0.963,1.059
+2026-09-08T05:39:29Z,South Africa,2018,2019,89,"Ships, boats and floating structures",emerged,0.208,1.101
+2026-09-08T05:39:29Z,South Africa,2018,2019,99,Commodities not specified according to kind,emerged,0.904,1.049
+2026-09-08T05:39:29Z,Botswana,2019,2020,1,Animals; live,emerged,0.658,4.98
+2026-09-08T05:39:29Z,Botswana,2019,2020,25,"Salt; sulphur; earths, stone; plastering materials, lime and cement",emerged,0.63,1.078
+2026-09-08T05:39:29Z,Botswana,2019,2020,92,Musical instruments; parts and accessories of such articles,lost,1.136,0.329
+2026-09-08T05:39:29Z,Lesotho,2019,2020,12,"Oil seeds and oleaginous fruits; miscellaneous grains, seeds and fruit, industrial or medicinal plants; straw and fodder",emerged,0.863,1.327
+2026-09-08T05:39:29Z,Lesotho,2019,2020,23,"Food industries, residues and wastes thereof; prepared animal fodder",lost,1.091,0.823
+2026-09-08T05:39:29Z,Lesotho,2019,2020,53,Vegetable textile fibres; paper yarn and woven fabrics of paper yarn,lost,9.044,0.33
+2026-09-08T05:39:29Z,Lesotho,2019,2020,60,Fabrics; knitted or crocheted,emerged,0.908,1.221
+2026-09-08T05:39:29Z,Lesotho,2019,2020,71,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",emerged,0.879,1.227
+2026-09-08T05:39:29Z,Namibia,2019,2020,5,Animal originated products; not elsewhere specified or included,emerged,0.904,1.548
+2026-09-08T05:39:29Z,Namibia,2019,2020,28,"Inorganic chemicals; organic and inorganic compounds of precious metals; of rare earth metals, of radio-active elements and of isotopes",emerged,0.141,1.732
+2026-09-08T05:39:29Z,Namibia,2019,2020,99,Commodities not specified according to kind,lost,1.329,0.658
+2026-09-08T05:39:29Z,South Africa,2019,2020,28,"Inorganic chemicals; organic and inorganic compounds of precious metals; of rare earth metals, of radio-active elements and of isotopes",lost,1.099,1.0
+2026-09-08T05:39:29Z,South Africa,2019,2020,46,"Manufactures of straw, esparto or other plaiting materials; basketware and wickerwork",emerged,0.964,1.01
+2026-09-08T05:39:29Z,South Africa,2019,2020,80,Tin; articles thereof,emerged,0.919,1.074
+2026-09-08T05:39:29Z,Botswana,2020,2021,2,Meat and edible meat offal,lost,1.261,0.703
+2026-09-08T05:39:29Z,Botswana,2020,2021,25,"Salt; sulphur; earths, stone; plastering materials, lime and cement",lost,1.078,0.854
+2026-09-08T05:39:29Z,Eswatini,2020,2021,14,Vegetable plaiting materials; vegetable products not elsewhere specified or included,emerged,0.421,1.611
+2026-09-08T05:39:29Z,Eswatini,2020,2021,19,"Preparations of cereals, flour, starch or milk; pastrycooks' products",emerged,0.312,5.524
+2026-09-08T05:39:29Z,Lesotho,2020,2021,23,"Food industries, residues and wastes thereof; prepared animal fodder",emerged,0.823,1.203
+2026-09-08T05:39:29Z,Lesotho,2020,2021,42,"Articles of leather; saddlery and harness; travel goods, handbags and similar containers; articles of animal gut (other than silk-worm gut)",emerged,0.905,1.174
+2026-09-08T05:39:29Z,Lesotho,2020,2021,48,"Paper and paperboard; articles of paper pulp, of paper or paperboard",emerged,0.497,1.077
+2026-09-08T05:39:29Z,Lesotho,2020,2021,53,Vegetable textile fibres; paper yarn and woven fabrics of paper yarn,emerged,0.33,42.039
+2026-09-08T05:39:29Z,Lesotho,2020,2021,58,"Fabrics; special woven fabrics, tufted textile fabrics, lace, tapestries, trimmings, embroidery",emerged,0.654,1.089
+2026-09-08T05:39:29Z,Lesotho,2020,2021,71,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",lost,1.227,0.6
+2026-09-08T05:39:29Z,Lesotho,2020,2021,80,Tin; articles thereof,lost,4.501,0.0
+2026-09-08T05:39:29Z,Namibia,2020,2021,7,Vegetables and certain roots and tubers; edible,emerged,0.816,1.149
+2026-09-08T05:39:29Z,Namibia,2020,2021,19,"Preparations of cereals, flour, starch or milk; pastrycooks' products",emerged,0.938,1.314
+2026-09-08T05:39:29Z,Namibia,2020,2021,49,"Printed books, newspapers, pictures and other products of the printing industry; manuscripts, typescripts and plans",emerged,0.064,8.901
+2026-09-08T05:39:29Z,Namibia,2020,2021,81,"Metals; n.e.c., cermets and articles thereof",emerged,0.026,1.524
+2026-09-08T05:39:29Z,Namibia,2020,2021,99,Commodities not specified according to kind,emerged,0.658,2.537
+2026-09-08T05:39:29Z,South Africa,2020,2021,16,"Meat, fish or crustaceans, molluscs or other aquatic invertebrates; preparations thereof",emerged,0.994,1.046
+2026-09-08T05:39:29Z,South Africa,2020,2021,19,"Preparations of cereals, flour, starch or milk; pastrycooks' products",lost,1.067,0.97
+2026-09-08T05:39:29Z,South Africa,2020,2021,28,"Inorganic chemicals; organic and inorganic compounds of precious metals; of rare earth metals, of radio-active elements and of isotopes",emerged,1.0,1.02
+2026-09-08T05:39:29Z,South Africa,2020,2021,46,"Manufactures of straw, esparto or other plaiting materials; basketware and wickerwork",lost,1.01,0.979
+2026-09-08T05:39:29Z,South Africa,2020,2021,49,"Printed books, newspapers, pictures and other products of the printing industry; manuscripts, typescripts and plans",lost,1.071,0.721
+2026-09-08T05:39:29Z,South Africa,2020,2021,53,Vegetable textile fibres; paper yarn and woven fabrics of paper yarn,lost,1.107,0.79
+2026-09-08T05:39:29Z,South Africa,2020,2021,79,Zinc and articles thereof,emerged,0.103,1.071
+2026-09-08T05:39:29Z,South Africa,2020,2021,99,Commodities not specified according to kind,lost,1.083,0.984
+2026-09-08T05:39:29Z,Botswana,2021,2022,13,"Lac; gums, resins and other vegetable saps and extracts",lost,2.857,0.0
+2026-09-08T05:39:29Z,Botswana,2021,2022,63,"Textiles, made up articles; sets; worn clothing and worn textile articles; rags",emerged,0.966,1.128
+2026-09-08T05:39:29Z,Botswana,2021,2022,78,Lead and articles thereof,emerged,0.29,1.828
+2026-09-08T05:39:29Z,Eswatini,2021,2022,18,Cocoa and cocoa preparations,lost,1.031,0.004
+2026-09-08T05:39:29Z,Eswatini,2021,2022,29,Organic chemicals,lost,1.123,0.99
+2026-09-08T05:39:29Z,Eswatini,2021,2022,48,"Paper and paperboard; articles of paper pulp, of paper or paperboard",emerged,0.371,1.299
+2026-09-08T05:39:29Z,Eswatini,2021,2022,58,"Fabrics; special woven fabrics, tufted textile fabrics, lace, tapestries, trimmings, embroidery",emerged,0.911,1.625
+2026-09-08T05:39:29Z,Lesotho,2021,2022,3,"Fish and crustaceans, molluscs and other aquatic invertebrates",emerged,0.628,1.114
+2026-09-08T05:39:29Z,Lesotho,2021,2022,12,"Oil seeds and oleaginous fruits; miscellaneous grains, seeds and fruit, industrial or medicinal plants; straw and fodder",lost,1.693,0.776
+2026-09-08T05:39:29Z,Lesotho,2021,2022,48,"Paper and paperboard; articles of paper pulp, of paper or paperboard",lost,1.077,0.782
+2026-09-08T05:39:29Z,Lesotho,2021,2022,54,Man-made filaments; strip and the like of man-made textile materials,lost,4.249,0.403
+2026-09-08T05:39:29Z,Lesotho,2021,2022,55,Man-made staple fibres,lost,2.306,0.508
+2026-09-08T05:39:29Z,Lesotho,2021,2022,58,"Fabrics; special woven fabrics, tufted textile fabrics, lace, tapestries, trimmings, embroidery",lost,1.089,0.34
+2026-09-08T05:39:29Z,Lesotho,2021,2022,70,Glass and glassware,emerged,0.213,1.0
+2026-09-08T05:39:29Z,Namibia,2021,2022,79,Zinc and articles thereof,lost,1.173,0.184
+2026-09-08T05:39:29Z,Namibia,2021,2022,81,"Metals; n.e.c., cermets and articles thereof",lost,1.524,0.002
+2026-09-08T05:39:29Z,South Africa,2021,2022,13,"Lac; gums, resins and other vegetable saps and extracts",emerged,0.865,1.052
+2026-09-08T05:39:29Z,South Africa,2021,2022,19,"Preparations of cereals, flour, starch or milk; pastrycooks' products",emerged,0.97,1.003
+2026-09-08T05:39:29Z,South Africa,2021,2022,43,Furskins and artificial fur; manufactures thereof,emerged,0.932,1.06
+2026-09-08T05:39:29Z,South Africa,2021,2022,85,"Electrical machinery and equipment and parts thereof; sound recorders and reproducers; television image and sound recorders and reproducers, parts and accessories of such articles",lost,1.006,0.996
+2026-09-08T05:39:29Z,South Africa,2021,2022,99,Commodities not specified according to kind,emerged,0.984,1.069
+2026-09-08T05:39:29Z,Botswana,2022,2023,2,Meat and edible meat offal,emerged,0.457,1.279
+2026-09-08T05:39:29Z,Botswana,2022,2023,64,Footwear; gaiters and the like; parts of such articles,emerged,0.297,1.124
+2026-09-08T05:39:29Z,Eswatini,2022,2023,67,"Feathers and down, prepared; and articles made of feather or of down; artificial flowers; articles of human hair",emerged,0.08,3.241
+2026-09-08T05:39:29Z,Lesotho,2022,2023,9,"Coffee, tea, mate and spices",emerged,0.895,1.635
+2026-09-08T05:39:29Z,Lesotho,2022,2023,23,"Food industries, residues and wastes thereof; prepared animal fodder",lost,1.045,0.909
+2026-09-08T05:39:29Z,Lesotho,2022,2023,54,Man-made filaments; strip and the like of man-made textile materials,emerged,0.403,1.033
+2026-09-08T05:39:29Z,Lesotho,2022,2023,58,"Fabrics; special woven fabrics, tufted textile fabrics, lace, tapestries, trimmings, embroidery",emerged,0.34,2.195
+2026-09-08T05:39:29Z,Lesotho,2022,2023,70,Glass and glassware,lost,1.0,0.657
+2026-09-08T05:39:29Z,Lesotho,2022,2023,71,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",emerged,0.76,1.127
+2026-09-08T05:39:29Z,Lesotho,2022,2023,92,Musical instruments; parts and accessories of such articles,emerged,0.001,2.3
+2026-09-08T05:39:29Z,Namibia,2022,2023,28,"Inorganic chemicals; organic and inorganic compounds of precious metals; of rare earth metals, of radio-active elements and of isotopes",lost,1.451,0.292
+2026-09-08T05:39:29Z,Namibia,2022,2023,31,Fertilizers,emerged,0.089,1.232
+2026-09-08T05:39:29Z,Namibia,2022,2023,93,Arms and ammunition; parts and accessories thereof,emerged,0.035,22.475
+2026-09-08T05:39:29Z,Namibia,2022,2023,97,Works of art; collectors' pieces and antiques,lost,1.194,0.664
+2026-09-08T05:39:29Z,Namibia,2022,2023,99,Commodities not specified according to kind,lost,1.092,0.588
+2026-09-08T05:39:29Z,South Africa,2022,2023,7,Vegetables and certain roots and tubers; edible,lost,1.023,0.969
+2026-09-08T05:39:29Z,South Africa,2022,2023,19,"Preparations of cereals, flour, starch or milk; pastrycooks' products",lost,1.003,0.942
+2026-09-08T05:39:29Z,South Africa,2022,2023,22,"Beverages, spirits and vinegar",lost,1.018,0.991
+2026-09-08T05:39:29Z,South Africa,2022,2023,43,Furskins and artificial fur; manufactures thereof,lost,1.06,0.915
+2026-09-08T05:39:29Z,South Africa,2022,2023,51,"Wool, fine or coarse animal hair; horsehair yarn and woven fabric",lost,1.0,0.993
+2026-09-08T05:39:29Z,South Africa,2022,2023,68,"Stone, plaster, cement, asbestos, mica or similar materials; articles thereof",lost,1.029,0.982
+2026-09-08T05:39:29Z,South Africa,2022,2023,93,Arms and ammunition; parts and accessories thereof,lost,1.139,0.0
