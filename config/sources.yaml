@@ -244,6 +244,44 @@ sources:
       pipeline with zero new code. This entry stays in the registry to
       record that decision, not because a separate fetch is still needed.
 
+  - id: forex_rates
+    category: macro
+    status: active
+    description: >
+      Phase 13 — USD/ZAR exchange rate via Frankfurter.app (free, keyless,
+      ECB-backed, chosen specifically to avoid the unofficial-scraper risk
+      category already ruled out for Google Trends). Lesotho's Loti has
+      been pegged 1:1 to the Rand since 1974 under the Common Monetary
+      Area — there is no separate LSL rate to fetch; ZAR/USD IS the
+      Loti's dollar rate. HONEST LIMITATION: this build environment has
+      no network access to frankfurter.app (confirmed directly, not
+      assumed), so the live API call itself was never verified before
+      shipping — only the parsing/error-handling logic was, via 6 mocked
+      response scenarios (well-formed, missing key, empty, malformed
+      entry, HTTP error, retry exhaustion). Check the first real run's
+      Actions log as the actual test, the way every other new source in
+      this project gets verified against live data after merging.
+    script: scripts/fetch_forex_rates.py
+    workflow: .github/workflows/forex-rates-pull.yml
+    cadence: "weekly, Mon 06:45 UTC"
+    output: data/macro/forex_rate_log.csv
+    date_range: "2010-01-01.."
+
+  - id: fuel_energy_prices
+    category: macro
+    status: deferred_no_free_api
+    description: >
+      Fuel/energy prices — considered for Phase 13 alongside the forex
+      feed. Checked and deferred: a free, keyless, reliably-documented
+      JSON API for crude oil/energy prices specifically is materially
+      less certain than forex (Frankfurter-quality options don't have a
+      commodities equivalent this project is confident in), and the
+      realistic free alternatives fall into the same unofficial-scraper
+      risk category already ruled out for Google Trends. Partial
+      coverage exists via gdelt_general's energy_water news tag. Revisit
+      if a genuinely free, documented, non-scraper commodity-price API
+      is identified later.
+
   - id: reliefweb_signals
     category: climate
     status: blocked_pending_appname_approval
@@ -602,3 +640,25 @@ computations:
       - data/derived/anomaly_news_links_log.csv
       - data/derived/news_volume_anomalies_log.csv
       - data/derived/peer_insights_log.csv
+
+  - id: commodity_signal
+    category: cross-cutting
+    status: active
+    description: >
+      Phase 13 — an honest substitute for wool/mohair and diamond PRICE
+      data, which doesn't exist as a public API in any form (free or
+      paid) because it's a structural fact about these markets, not a
+      coverage gap: wool/mohair are sold at regional auctions (per-lot
+      prices, not a continuous published series); diamonds are graded
+      and priced per-stone, with no fungible spot market the way gold or
+      oil have one. Rather than force a proxy that doesn't fit, this
+      surfaces the real news-coverage signal already being tracked for
+      these exact topics since Phase 3 (the wool_mohair_cashmere and
+      mining_minerals tags) as the honest alternative, paired with a
+      plain-language note stating why no price figure is shown.
+    inputs: [gdelt_general]
+    script: scripts/compute_commodity_signal.py
+    workflow: .github/workflows/compute-commodity-signal.yml
+    trigger: "runs automatically after gdelt_general updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/commodity_signal_log.csv

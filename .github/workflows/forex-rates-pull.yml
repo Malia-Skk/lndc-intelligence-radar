@@ -1,0 +1,45 @@
+name: Forex rate pull (USD/ZAR, via Frankfurter)
+
+on:
+  schedule:
+    - cron: "45 6 * * 1"   # weekly, Mon 06:45 UTC — offset from the other Monday pulls to avoid runner contention
+  workflow_dispatch: {}    # manual "Run workflow" button -- important for this one especially, since the
+                            # live API behaviour has not been verified before this first real run (see script docstring)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: forex-rates-pull
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run forex rate fetch script
+        run: python scripts/fetch_forex_rates.py
+
+      - name: Commit and push updated log
+        run: |
+          if [ -f data/macro/forex_rate_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/macro/forex_rate_log.csv
+            git diff --cached --quiet || git commit -m "Update USD/ZAR forex rate log"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No log file present this run (the fetch likely failed after retries) - nothing to commit."
+          fi
