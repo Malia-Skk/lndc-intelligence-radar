@@ -524,3 +524,40 @@ computations:
       - data/derived/diversification_index_log.csv
       - data/derived/emerging_products_log.csv
       - data/derived/bop_tracker_log.csv
+
+  - id: extended_forecasts
+    category: cross-cutting
+    status: active
+    description: >
+      Phase 11 -- more series forecast (manufacturing/FDI/unemployment/
+      manufactured-exports % GDP), the CONTINUOUS complexity score
+      (log_fitness_score, not just Phase 7's discrete rank), and a
+      "required pace" gap analysis. Reuses lib/forecast.py exactly as
+      Phase 7 built it; does NOT modify compute_forecasts.py itself
+      (reads its output read-only for the GDP required-pace figure).
+      CHECKED BEFORE WRITING ANY CODE, not assumed: every new series
+      here shows the same full-history-vs-recent-5yr SIGN FLIP Phase 7
+      found for GDP growth alone -- not a one-off, a systemic feature of
+      this dataset (plausibly the same COVID-era structural break).
+      Every forecast uses both windows for that reason. REAL FINDING:
+      the continuous complexity score shows a sign flip invisible in the
+      discrete rank (which has shown zero variance, always 4th) --
+      full-history reads as slight improvement, recent 5 years read as
+      decline. REQUIRED PACE gives GDP growth and the complexity score
+      (against an IMPLICIT target: the current #1-ranked country's own
+      score) an explicit "rate of change needed vs. rate of change
+      happening" figure -- verified finding: the complexity score's
+      recent trend is moving in the WRONG direction (-0.224 pts/yr)
+      while closing the gap to South Africa's current score would need
+      +3.576 pts/yr, a stark, honestly-reported gap. Deliberately does
+      NOT compute required-pace for the ordinal SACU rank or for metrics
+      with no stated numeric target (manufacturing/FDI/unemployment/
+      HHI/trade-gap) -- reported as forecasts without a pace figure
+      rather than inventing a target that doesn't exist.
+    inputs: [worldbank_macro, proxy_eci, trade_analytics, forecasts]
+    script: scripts/compute_extended_forecasts.py
+    workflow: .github/workflows/compute-extended-forecasts.yml
+    trigger: "runs automatically after any of its 4 input sources updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/extended_forecast_log.csv
+      - data/derived/required_pace_log.csv
