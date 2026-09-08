@@ -1,0 +1,2 @@
+computed_at,date,article_count,latest_change,z_score,is_anomaly,n_prior_days,confidence_note
+2026-09-08T10:24:23Z,2026-09-06,8,2,0.578,False,7,"Only 7 days of news history exist yet (below the ~21-day mark this system treats as minimally reliable) -- treat this as an early, thin-history signal, not a confident read. It will become more reliable automatically as more daily pulls accumulate."
