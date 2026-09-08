@@ -1,0 +1,35 @@
+computed_at,country,year,hhi,concentration_level,n_product_chapters,top_product,top_product_share_pct
+2026-09-08T05:39:29Z,Botswana,2018,8209.4,highly concentrated,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",90.56
+2026-09-08T05:39:29Z,Botswana,2019,8335.4,highly concentrated,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",91.26
+2026-09-08T05:39:29Z,Botswana,2020,8003.1,highly concentrated,93,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",89.4
+2026-09-08T05:39:29Z,Botswana,2021,8225.6,highly concentrated,93,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",90.65
+2026-09-08T05:39:29Z,Botswana,2022,7698.3,highly concentrated,95,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",87.61
+2026-09-08T05:39:29Z,Botswana,2023,6370.6,highly concentrated,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",79.19
+2026-09-08T05:39:29Z,Eswatini,2018,1842.4,moderately concentrated,93,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations",33.87
+2026-09-08T05:39:29Z,Eswatini,2019,1844.5,moderately concentrated,92,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations",31.94
+2026-09-08T05:39:29Z,Eswatini,2020,1794.6,moderately concentrated,95,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations",30.23
+2026-09-08T05:39:29Z,Eswatini,2021,1715.6,moderately concentrated,89,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations",30.04
+2026-09-08T05:39:29Z,Eswatini,2022,1591.8,moderately concentrated,92,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations",29.59
+2026-09-08T05:39:29Z,Eswatini,2023,1612.2,moderately concentrated,93,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations",27.98
+2026-09-08T05:39:29Z,Lesotho,2018,1896.8,moderately concentrated,87,Apparel and clothing accessories; knitted or crocheted,32.07
+2026-09-08T05:39:29Z,Lesotho,2019,1915.1,moderately concentrated,86,Apparel and clothing accessories; knitted or crocheted,33.0
+2026-09-08T05:39:29Z,Lesotho,2020,1983.1,moderately concentrated,92,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",31.84
+2026-09-08T05:39:29Z,Lesotho,2021,1689.5,moderately concentrated,87,Apparel and clothing accessories; knitted or crocheted,29.79
+2026-09-08T05:39:29Z,Lesotho,2022,1561.1,moderately concentrated,86,Apparel and clothing accessories; knitted or crocheted,27.11
+2026-09-08T05:39:29Z,Lesotho,2023,1454.6,diversified,87,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",23.59
+2026-09-08T05:39:29Z,Lesotho,2024,1447.3,diversified,91,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",23.54
+2026-09-08T05:39:29Z,Namibia,2018,1499.3,diversified,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",26.16
+2026-09-08T05:39:29Z,Namibia,2019,2003.8,moderately concentrated,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",37.49
+2026-09-08T05:39:29Z,Namibia,2020,2072.1,moderately concentrated,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",37.7
+2026-09-08T05:39:29Z,Namibia,2021,2045.6,moderately concentrated,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",37.72
+2026-09-08T05:39:29Z,Namibia,2022,1990.4,moderately concentrated,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",37.05
+2026-09-08T05:39:29Z,Namibia,2023,1790.3,moderately concentrated,95,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",35.0
+2026-09-08T05:39:29Z,Namibia,2024,1543.0,moderately concentrated,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",28.21
+2026-09-08T05:39:29Z,South Africa,2018,827.7,diversified,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",17.22
+2026-09-08T05:39:29Z,South Africa,2019,868.9,diversified,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",16.79
+2026-09-08T05:39:29Z,South Africa,2020,1000.9,diversified,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",22.64
+2026-09-08T05:39:29Z,South Africa,2021,1221.1,diversified,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",27.53
+2026-09-08T05:39:29Z,South Africa,2022,987.4,diversified,97,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",20.75
+2026-09-08T05:39:29Z,South Africa,2023,885.6,diversified,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",17.71
+2026-09-08T05:39:29Z,South Africa,2024,907.2,diversified,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",18.45
+2026-09-08T05:39:29Z,South Africa,2025,966.8,diversified,96,"Natural, cultured pearls; precious, semi-precious stones; precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin",20.0
