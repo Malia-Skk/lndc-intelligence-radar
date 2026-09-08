@@ -1,0 +1,52 @@
+name: Compute cross-domain insights
+
+on:
+  workflow_run:
+    workflows:
+      - "Compute anomaly signals & discovery feed"
+      - "General signal pull (GDELT, auto-tagged)"
+      - "Compute proxy Economic Complexity (SACU-regional)"
+      - "Compute trade analytics"
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: compute-cross-domain-insights
+  cancel-in-progress: false
+
+jobs:
+  compute:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run cross-domain insights computation
+        run: python scripts/compute_cross_domain_insights.py
+
+      - name: Commit and push updated output
+        run: |
+          if [ -f data/derived/anomaly_news_links_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/derived/anomaly_news_links_log.csv data/derived/news_volume_anomalies_log.csv data/derived/peer_insights_log.csv
+            git diff --cached --quiet || git commit -m "Recompute cross-domain insights"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No output file present this run -- nothing to commit."
+          fi

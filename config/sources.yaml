@@ -561,3 +561,44 @@ computations:
     outputs:
       - data/derived/extended_forecast_log.csv
       - data/derived/required_pace_log.csv
+
+  - id: cross_domain_insights
+    category: cross-cutting
+    status: active
+    description: >
+      Phase 12 -- three computations connecting data already sitting in
+      separate files, no new sources. (1) ANOMALY <-> NEWS TOPICAL
+      LINKING: runs each flagged anomaly's own descriptive label through
+      lib/tagging.py's real tag_article() function (the same rules used
+      to tag actual news) to find a plausible topic, then checks for
+      current articles carrying that tag. CHECKED BEFORE BUILDING: the
+      news archive spans about a week while anomalies describe 2023-2025
+      data -- no temporal overlap exists, so this can only mean "does
+      current news touch the same broad topic," never "this explains
+      that anomaly." REAL, HONESTLY-REPORTED FINDING: only ~18% of
+      flagged anomalies match any existing news category at all -- most
+      trade anomalies are about specific HS product chapters the 17
+      tracked categories were never built to cover. (2) NEWS-VOLUME
+      ANOMALY DETECTION: reuses lib/anomaly.py's evaluate_latest_anomaly()
+      exactly, pointed at daily article counts instead of a trade/macro
+      series. HONESTLY FLAGGED as early-days output -- only ~7 days of
+      news history exist yet, well below the ~21-day mark treated as
+      minimally reliable; the mechanism is built now so it improves
+      automatically as more daily pulls accumulate, not reported with
+      false confidence today. (3) PEER-COUNTRY INSIGHTS: the same kind
+      of plain-language narration Lesotho gets on the dashboard, applied
+      to its SACU neighbours using data that already covers all 5
+      members. REAL FINDINGS: Namibia and Eswatini have swapped 2nd/3rd
+      place in SACU complexity ranking twice since 2018 (an ongoing
+      rivalry Lesotho-only narration would never surface); Botswana's
+      export concentration has eased 22% since 2018 even though its rank
+      hasn't moved from last place -- real improvement not yet reflected
+      in its ranking.
+    inputs: [anomaly_signals, gdelt_general, proxy_eci, trade_analytics]
+    script: scripts/compute_cross_domain_insights.py
+    workflow: .github/workflows/compute-cross-domain-insights.yml
+    trigger: "runs automatically after any of its 4 input sources updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/anomaly_news_links_log.csv
+      - data/derived/news_volume_anomalies_log.csv
+      - data/derived/peer_insights_log.csv
