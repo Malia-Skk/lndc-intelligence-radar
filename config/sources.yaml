@@ -441,3 +441,36 @@ computations:
     outputs:
       - data/derived/forecast_log.csv
       - data/derived/target_status_log.csv
+
+  - id: sector_watchlist
+    category: cross-cutting
+    status: active
+    description: >
+      Phase 9 -- the strategy's 13 named wage-goods (defensive) and
+      emerging (offensive) sectors, each mapped to real HS 2-digit trade
+      chapters and/or news tags checked directly against the live data
+      before being assigned (not guessed from a generic HS code list).
+      For wage-goods sectors, computes an import-dependency ratio
+      (imports / (imports + exports)) -- directly operationalising the
+      strategy's own import-substitution framing. Verified against real
+      data: grains/poultry, energy, building materials, and pharma all
+      show 96-99.9% import dependency, matching the strategy's own
+      diagnosis closely. "Basic clothing" is the one exception (13.4%
+      import dependency, i.e. export-dominated) -- BY DESIGN this is
+      flagged as a real limitation, not smoothed over: HS 61/62 is the
+      same chapter as Lesotho's large CMT export garment industry, so
+      this cannot separate "basic clothing for domestic consumption"
+      from "export-oriented manufacturing" at 2-digit granularity, and
+      the number itself demonstrates why that caveat matters. Two
+      sectors (Music/arts/sports, the "mountain economy") have NO
+      matching trade code or news tag and are reported as genuinely
+      untracked rather than forced into a proxy that doesn't fit --
+      this doesn't fully close the dashboard's long-standing "5 new
+      industrial sectors has no tracking source" gap, but every named
+      sector now has a real, checked status instead of silence.
+    inputs: [comtrade_sacu_basket, gdelt_general]
+    script: scripts/compute_sector_watchlist.py
+    workflow: .github/workflows/compute-sector-watchlist.yml
+    trigger: "runs automatically after either input source updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/sector_watchlist_log.csv
