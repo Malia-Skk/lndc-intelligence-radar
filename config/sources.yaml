@@ -166,6 +166,48 @@ sources:
     output: data/news/general_signal_log.csv
     tagging_categories: scripts/lib/tagging.py (CATEGORY_KEYWORDS)
 
+  - id: global_signal
+    category: news
+    status: active
+    description: >
+      Phase A of the predictive-analytics expansion (per the LNDC
+      Industrial Intelligence Radar diagnostic report, Chapter 8.2) --
+      global signal monitoring, deliberately NOT scoped to "Lesotho"
+      appearing in the article, unlike gdelt_general above. That
+      script's every query requires "Lesotho" in the text, which is
+      exactly right for Lesotho's own situation but structurally cannot
+      catch a shift before it reaches Lesotho -- the report's own
+      illustrative Radar questions ("what global apparel-sourcing shifts
+      could create relocation opportunities for Lesotho?") are about
+      signal that hasn't mentioned Lesotho yet. Four query buckets, each
+      sized 8-10 terms (safely inside the proven-working range
+      established by gdelt_general's own revision history above): global
+      apparel-sourcing shifts, global data-centre investment, critical-
+      minerals investment among SACU peers specifically, and AGOA/AfCFTA/
+      trade-preference policy news. Each article is checked (via
+      scripts/lib/peer_relevance.py, reusing tagging.py's exact safe
+      word-boundary matcher) against a curated list of countries directly
+      comparable to Lesotho's situation for that bucket -- a mention of
+      Vietnam in an apparel-sourcing story reads differently to a human
+      reviewer than a mention of Germany. These country lists are
+      explicitly curated judgement calls, not an authoritative
+      classification, and will need periodic review as global patterns
+      shift. HONEST LIMITATION: this build environment has no network
+      access to api.gdeltproject.org, so while the fetch mechanism is
+      copied verbatim from gdelt_general's own already-proven retry/
+      backoff logic, these specific new query strings have never
+      received a real GDELT response -- tested via 8 mocked scenarios
+      (realistic multi-bucket merge, the exact "query too short or too
+      long" failure already seen once with gdelt_general, 429 rate-limit
+      recovery, total network failure, empty response body, idempotent
+      re-append) but the first live run's Actions log is the actual test
+      of whether each bucket returns genuinely relevant results.
+    script: scripts/fetch_global_signal.py
+    workflow: .github/workflows/global-signal-pull.yml
+    cadence: "daily, 07:00 UTC"
+    output: data/news/global_signal_log.csv
+    relevance_matching: scripts/lib/peer_relevance.py
+
   # ---------------------------------------------------------------------
   # PLANNED — named and scoped now so Phase 5 is "fill this in", not
   # "figure out what belongs here". Not fetched yet; no script/workflow.
