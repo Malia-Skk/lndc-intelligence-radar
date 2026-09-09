@@ -58,18 +58,22 @@ from lib.peer_relevance import tag_relevance  # noqa: E402
 # top of an already-untested set of query strings.
 QUERY_BUCKETS = {
     "apparel_sourcing_shifts": (
+        'sourcelang:english '
         '("apparel sourcing" OR "garment manufacturing" OR "textile factory" OR "clothing manufacturer") '
         '(relocating OR relocation OR shifting OR "moving production" OR nearshoring OR reshoring)'
     ),
     "data_centre_investment": (
+        'sourcelang:english '
         '("data center" OR "data centre" OR hyperscale) '
         '(investment OR "site selection" OR construction OR announces OR expansion)'
     ),
     "critical_minerals_peers": (
+        'sourcelang:english '
         '(Botswana OR Namibia OR Eswatini OR "South Africa") '
         '("critical minerals" OR "rare earth" OR lithium OR cobalt OR smelter OR refinery)'
     ),
     "trade_preference_policy": (
+        'sourcelang:english '
         '(AGOA OR AfCFTA OR "trade preference" OR "market access") '
         '(renewal OR expire OR expiry OR suspended OR terminated OR extended)'
     ),
@@ -83,7 +87,6 @@ BASE_PARAMS = {
     "maxrecords": 250,
     "timespan": "1week",
     "sort": "datedesc",
-    "sourcelang": "english",
 }
 
 INTER_BUCKET_DELAY_SECONDS = 5
@@ -101,20 +104,23 @@ RATE_LIMIT_WAIT_SECONDS = 90
 MAXRECORDS_CAP = BASE_PARAMS["maxrecords"]
 
 
-def fetch_bucket(bucket_name, query):
+def fetch_bucket(bucket_name, query, max_attempts=None):
     """Identical retry/backoff logic to fetch_gdelt_general.py's own
     fetch_bucket() -- copied deliberately, not reimplemented, since this
     exact sequence (429 handling, empty-body check, response-snippet
     logging on failure) is already proven against real GDELT failure
-    modes seen in production."""
+    modes seen in production. max_attempts is overridable so the second
+    pass in fetch_all_signals() (see below) can use a smaller retry
+    budget than the first."""
+    max_attempts = max_attempts or MAX_ATTEMPTS
     last_error = None
     already_throttled_this_run = False
     params = dict(BASE_PARAMS, query=query)
 
-    for attempt in range(1, MAX_ATTEMPTS + 1):
+    for attempt in range(1, max_attempts + 1):
         response = None
         try:
-            print(f"  [{bucket_name}] Attempt {attempt} of {MAX_ATTEMPTS}: calling GDELT...")
+            print(f"  [{bucket_name}] Attempt {attempt} of {max_attempts}: calling GDELT...")
             response = requests.get(API_URL, params=params, timeout=TIMEOUT_SECONDS)
 
             if response.status_code == 429:
@@ -122,7 +128,7 @@ def fetch_bucket(bucket_name, query):
                 last_error = "429 Too Many Requests"
                 already_throttled_this_run = True
                 print(f"  [{bucket_name}] Attempt {attempt} was rate-limited (429).")
-                if attempt < MAX_ATTEMPTS:
+                if attempt < max_attempts:
                     print(f"  [{bucket_name}] Waiting {wait}s before retrying (rate-limit backoff)...")
                     time.sleep(wait)
                 continue
@@ -144,23 +150,40 @@ def fetch_bucket(bucket_name, query):
                 print(f"    Response status: {response.status_code}")
                 print(f"    Response snippet (first 300 chars): {response.text[:300]!r}")
             wait = RATE_LIMIT_WAIT_SECONDS if already_throttled_this_run else RETRY_WAIT_SECONDS
-            if attempt < MAX_ATTEMPTS:
+            if attempt < max_attempts:
                 print(f"  [{bucket_name}] Waiting {wait}s before retrying...")
                 time.sleep(wait)
 
-    print(f"  [{bucket_name}] All {MAX_ATTEMPTS} attempts failed. Last error: {last_error}")
+    print(f"  [{bucket_name}] All {max_attempts} attempts failed. Last error: {last_error}")
     return None
+
+
+# How many attempts the second pass gets, per bucket that failed its
+# first full cycle. REAL EVIDENCE FROM A LIVE RUN, not a guess: the
+# first bucket queried failed all 4 attempts (rate-limited every time),
+# while later buckets increasingly succeeded on later attempts -- the
+# second bucket succeeded on attempt 4, the last bucket succeeded on
+# just attempt 2. That pattern is consistent with a rate-limit window
+# that gradually clears as more wall-clock time passes during the run,
+# which means whichever bucket happens to go first is structurally
+# disadvantaged, regardless of its own wording. A second pass, run only
+# after every bucket has had its first turn (so the maximum possible
+# time has elapsed since the run started), gives an early, unlucky
+# bucket a real chance to succeed once that window has had more time to
+# clear -- rather than being permanently given up on just because it
+# happened to be tried first.
+SECOND_PASS_MAX_ATTEMPTS = 2
 
 
 def fetch_all_signals():
     merged = {}
-    any_failed = False
+    failed_buckets = []
     bucket_names = list(QUERY_BUCKETS.keys())
 
     for i, (bucket_name, query) in enumerate(QUERY_BUCKETS.items()):
         articles = fetch_bucket(bucket_name, query)
         if articles is None:
-            any_failed = True
+            failed_buckets.append((bucket_name, query))
             continue
         print(f"  [{bucket_name}] Received {len(articles)} articles.")
         for article in articles:
@@ -174,6 +197,28 @@ def fetch_all_signals():
         if i < len(bucket_names) - 1:
             time.sleep(INTER_BUCKET_DELAY_SECONDS)
 
+    still_failed = []
+    if failed_buckets:
+        print(f"\n{len(failed_buckets)} bucket(s) failed their first pass -- retrying now that more time has elapsed since the run started...")
+        for bucket_name, query in failed_buckets:
+            time.sleep(INTER_BUCKET_DELAY_SECONDS)
+            articles = fetch_bucket(bucket_name, query, max_attempts=SECOND_PASS_MAX_ATTEMPTS)
+            if articles is None:
+                still_failed.append(bucket_name)
+                continue
+            print(f"  [{bucket_name}] Succeeded on the second pass, received {len(articles)} articles.")
+            for article in articles:
+                url = article.get("url", "")
+                if not url:
+                    continue
+                if url not in merged:
+                    article = dict(article)
+                    article["_query_bucket"] = bucket_name
+                    merged[url] = article
+
+    any_failed = len(still_failed) > 0
+    if still_failed:
+        print(f"  Still failed after the second pass: {', '.join(still_failed)}")
     return list(merged.values()), any_failed
 
 
@@ -202,7 +247,7 @@ def append_new_rows(path, articles, existing_urls, pulled_at):
 
             title = article.get("title", "")
             bucket = article.get("_query_bucket", "")
-            countries, note = tag_relevance(title, bucket)
+            countries, note = tag_relevance(title, bucket, sourcecountry=article.get("sourcecountry", ""))
             if countries:
                 relevant_count += 1
             bucket_counts[bucket] = bucket_counts.get(bucket, 0) + 1

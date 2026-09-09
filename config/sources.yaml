@@ -192,21 +192,36 @@ sources:
       reviewer than a mention of Germany. These country lists are
       explicitly curated judgement calls, not an authoritative
       classification, and will need periodic review as global patterns
-      shift. HONEST LIMITATION: this build environment has no network
-      access to api.gdeltproject.org, so while the fetch mechanism is
-      copied verbatim from gdelt_general's own already-proven retry/
-      backoff logic, these specific new query strings have never
-      received a real GDELT response -- tested via 8 mocked scenarios
-      (realistic multi-bucket merge, the exact "query too short or too
-      long" failure already seen once with gdelt_general, 429 rate-limit
-      recovery, total network failure, empty response body, idempotent
-      re-append) but the first live run's Actions log is the actual test
-      of whether each bucket returns genuinely relevant results.
+      shift.
+
+      REVISED after a real first live run surfaced three genuine issues:
+      (1) the FIRST bucket queried was rate-limited on all 4 attempts
+      while later buckets increasingly succeeded despite also hitting
+      429s -- evidence of a rate-limit window clearing over elapsed
+      wall-clock time during the run, disadvantaging whichever bucket
+      happens to go first. Fixed with a second retry pass, run only
+      after every bucket has had its first turn, so an early bucket gets
+      a real second chance once more time has elapsed. (2) sourcelang
+      was passed as a separate URL parameter, which GDELT silently
+      ignored -- confirmed directly: one bucket returned only 75%
+      English results, the rest spread across French, Chinese, Spanish,
+      and 8 other languages. Fixed by moving sourcelang:english into
+      each query string itself, matching gdelt_general's own already-
+      proven pattern exactly rather than a fresh, untested parameter
+      choice. (3) only 7 of 437 real articles were flagged as mentioning
+      a comparable country, partly a real consequence of (2) (word-
+      boundary matching against English country names structurally
+      cannot work on non-English titles) and partly the genuine, honest
+      limit of title-only matching. Improved, not solved, by also
+      checking the article's own sourcecountry field (99% populated in
+      the real run, and language-independent) as a second, clearly-
+      labelled, weaker signal alongside title matches.
     script: scripts/fetch_global_signal.py
     workflow: .github/workflows/global-signal-pull.yml
     cadence: "daily, 07:00 UTC"
     output: data/news/global_signal_log.csv
     relevance_matching: scripts/lib/peer_relevance.py
+
 
   # ---------------------------------------------------------------------
   # PLANNED — named and scoped now so Phase 5 is "fill this in", not

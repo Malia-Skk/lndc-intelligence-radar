@@ -74,27 +74,49 @@ def find_country_mentions(title, country_list):
     return [lowered_to_original[m] for m in matches]
 
 
-def tag_relevance(title, bucket):
-    """Given an article title and which query bucket it came from, returns
+def tag_relevance(title, bucket, sourcecountry=None):
+    """Given an article title, which query bucket it came from, and
+    (optionally) the article's own source country, returns
     (mentioned_countries, relevance_note) -- a short, honest description
     of why this is or isn't a directly comparable signal, for a human
-    reviewer to weigh, not an automated relevance score."""
+    reviewer to weigh, not an automated relevance score.
+
+    sourcecountry (added after the first live run) is a real, separate
+    signal from a title mention -- GDELT populated it for 433 of 437
+    articles in that run (99%), well above the title-matching hit rate,
+    and critically it's language-independent: a French- or Chinese-
+    language article's sourcecountry field is still just a country name,
+    so it catches genuinely relevant articles a title-only, English-word
+    -boundary match structurally cannot. It's still an imperfect proxy,
+    not a replacement for title matching -- an international wire
+    service's dateline (sourcecountry) reflects where the OUTLET is
+    based, not necessarily what country the story is ABOUT, so the two
+    signals are kept visibly distinct in the output rather than merged
+    into one unlabelled score.
+    """
     if bucket == "apparel_sourcing_shifts":
-        hits = find_country_mentions(title, APPAREL_SOURCING_PEERS)
-        if hits:
-            return hits, f"Mentions {', '.join(hits)} -- a directly comparable apparel-exporting economy."
-        return [], "General apparel-sourcing trend story; no specific comparable country named in the title."
-    if bucket == "critical_minerals_peers":
-        hits = find_country_mentions(title, SACU_PEERS)
-        return hits, (f"SACU peer: {', '.join(hits)}." if hits else "Matched the SACU-scoped query but no peer name found in title text (recall limitation -- see module docstring).")
-    if bucket == "data_centre_investment":
-        hits = find_country_mentions(title, EMERGING_DATACENTRE_MARKETS)
-        if hits:
-            return hits, f"Mentions {', '.join(hits)} -- a developing-market data-centre case, more directly comparable to Lesotho than a mature-market story."
-        return [], "Data-centre investment story with no emerging-market country named in the title (may still be a mature-market story, e.g. US/EU)."
-    if bucket == "trade_preference_policy":
-        hits = find_country_mentions(title, SACU_PEERS + ["Lesotho"])
-        if hits:
-            return hits, f"Directly names {', '.join(hits)} -- a regional trade-preference development, not just a generic policy story."
-        return [], "General AGOA/AfCFTA/trade-preference story; no SACU country named in the title."
-    return [], "Unrecognised bucket -- no relevance rule defined."
+        peers = APPAREL_SOURCING_PEERS
+    elif bucket == "critical_minerals_peers":
+        peers = SACU_PEERS
+    elif bucket == "data_centre_investment":
+        peers = EMERGING_DATACENTRE_MARKETS
+    elif bucket == "trade_preference_policy":
+        peers = SACU_PEERS + ["Lesotho"]
+    else:
+        return [], "Unrecognised bucket -- no relevance rule defined."
+
+    title_hits = find_country_mentions(title, peers)
+    source_hit = sourcecountry if sourcecountry and sourcecountry in peers else None
+
+    all_hits = list(dict.fromkeys(title_hits + ([source_hit] if source_hit else [])))  # dedupe, keep order
+
+    if title_hits and source_hit:
+        note = f"Names {', '.join(title_hits)} in the title, and is itself sourced from {source_hit}."
+    elif title_hits:
+        note = f"Mentions {', '.join(title_hits)} in the title."
+    elif source_hit:
+        note = f"No comparable country named in the title, but the article is itself sourced from {source_hit} (its dateline, not necessarily its subject -- a weaker signal than a title mention)."
+    else:
+        note = "No comparable country found in the title or the article's own source country."
+
+    return all_hits, note
