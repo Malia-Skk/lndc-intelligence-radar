@@ -730,3 +730,67 @@ computations:
     trigger: "runs automatically after gdelt_general updates, plus workflow_dispatch"
     outputs:
       - data/derived/commodity_signal_log.csv
+
+  - id: sector_discovery
+    category: cross-cutting
+    status: active
+    description: >
+      Phase B of the predictive-analytics expansion (per the LNDC
+      Industrial Intelligence Radar diagnostic report) -- the centrepiece
+      capability the report's Chapter 8.2 and this expansion were
+      requested for: automatically surfacing recurring, growing themes
+      NOT already in the strategy's named 13-sector list, rather than
+      only tracking sectors someone already thought to name. Deliberately
+      NOT machine-learning topic modelling or clustering -- that was a
+      considered choice, not a shortcut: an LDA/embeddings cluster's
+      "meaning" has to be inferred after the fact, which is exactly the
+      opaque, hard-to-verify output the report's own standing caution
+      warns against (fluent output is not the same as correct output).
+      Instead: extracts recurring 2-3 word phrases from real article
+      titles (Phase A's global signal + the existing discovery feed of
+      untagged Lesotho-relevant news), excludes anything already covered
+      by the 13 named sectors or 17 existing news categories, and scores
+      what's left by how many INDEPENDENT signal types corroborate it
+      (news recurrence + a matching SACU trade-basket commodity
+      description + a matching pipeline company sector) -- the report's
+      own Chapter 3.1 principle that a signal in one channel should be
+      cross-checked against another. Every output row links directly to
+      the real headlines and records that produced it; nothing is a
+      claim a human reviewer can't immediately verify.
+
+      TWO REAL PROBLEMS FOUND AND FIXED DURING BUILD, BOTH VIA TESTING
+      AGAINST REAL DATA, NOT ASSUMED WORKING: (1) a first real run
+      surfaced almost entirely noise -- wire-service syndication credit
+      lines ("APO Group - Africa Newsroom"), country names, and generic
+      finance-market boilerplate ("insider sells stock") all recurring
+      as if they were content. Fixed with a curated exclusion list for
+      each pattern, found by inspecting real output, not guessed in
+      advance. (2) counting raw article recurrence wrongly treated the
+      same syndicated story (republished near-verbatim across several
+      domains, sometimes with a minor prefix like "Business :" added) as
+      independent corroboration. Fixed with Jaccard word-set similarity
+      grouping (70% overlap threshold) to count DISTINCT STORIES, not
+      distinct rows or even distinct domains alone -- confirmed directly
+      against the real syndicated example that motivated the fix. A
+      third bug (a word-length filter of >2 characters silently
+      excluded "AI" -- exactly the kind of term this engine most needs
+      to catch) was caught by a test built around a real headline
+      example, fixed with a small explicit short-acronym allowlist.
+
+      HONEST LIMITATION: with roughly 600 global-signal rows and 20
+      discovery-feed rows at build time, this is genuinely thin data for
+      confident GROWTH-trend detection (showing a phrase is accelerating
+      needs real history to compare against). What it can honestly do
+      today is candidate GENERATION -- phrases recurring across multiple
+      independent real articles right now. Residual noise (person and
+      company names recurring because the same regional/company story
+      gets covered by several financial-news aggregators) can still
+      surface; this is a screening list for a human reviewer to scan in
+      a few minutes, exactly matching the report's own Chapter 8.3
+      governance principle, not an autonomous, unreviewed output.
+    inputs: [anomaly_signals, global_signal]
+    script: scripts/compute_sector_discovery.py
+    workflow: .github/workflows/compute-sector-discovery.yml
+    trigger: "runs automatically after either input source updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/sector_discovery_log.csv
