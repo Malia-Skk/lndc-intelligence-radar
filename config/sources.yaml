@@ -284,7 +284,7 @@ sources:
 
   - id: reliefweb_signals
     category: climate
-    status: blocked_pending_appname_approval
+    status: active
     description: >
       Humanitarian/food-security/climate signal for Lesotho via the
       ReliefWeb API (api.reliefweb.int) -- relevant to grains/poultry and
@@ -293,21 +293,23 @@ sources:
       same tier as ReliefWeb's -- ReliefWeb aggregates situation reports,
       appeals, and disaster updates from many sources including FEWS
       NET-adjacent content, so it's used here as the actual mechanism.
-      Two real issues found and fixed via live testing: (1) pointed at the
-      decommissioned /v1/ endpoint -- the API's own error named the fix,
-      switched to /v2/, confirmed compatible per ReliefWeb's own docs.
-      (2) NOW BLOCKED ON: ReliefWeb requires a pre-approved appname as of
-      1 Nov 2025 -- confirmed via a live 403: "You are not using an
-      approved appname. Kindly request an appname from ReliefWeb here:
-      https://apidoc.reliefweb.int/parameters#appname". This is an
-      external administrative step (someone at LNDC requesting/
-      registering an appname, likely a domain like lndc.org.ls per the
-      docs' guidance), not a code fix -- nothing else can be verified
-      (including whether the assumed response field structure --
-      fields.title, fields.source[].name, etc. -- is even correct) until
-      this is resolved and a real 200 response comes back. Once an
-      approved appname exists, updating PARAMS["appname"] in the script
-      is a one-line change.
+      Two real issues found and fixed via live testing before this went
+      active: (1) pointed at the decommissioned /v1/ endpoint -- the
+      API's own error named the fix, switched to /v2/, confirmed
+      compatible per ReliefWeb's own docs. (2) blocked on a pre-approved
+      appname requirement (as of 1 Nov 2025) -- confirmed via a live 403,
+      requested via https://apidoc.reliefweb.int/parameters#appname, and
+      now approved. ReliefWeb adjusted the requested name to meet their
+      naming standards; the actual issued appname
+      ("Lndc-forecasting-fuoewfr-freouf79Ke") is set in the script.
+      STILL GENUINELY UNVERIFIED: this script has never received a real
+      200 response -- only the 410 and 403 above. The assumed response
+      field structure (fields.title, fields.source[].name, etc.) is a
+      best-effort guess from ReliefWeb's documentation, not confirmed
+      against real data. Coded to degrade gracefully and log the raw
+      response shape if that guess is wrong, but the first real run's
+      Actions log is the actual test here, same as every other new
+      source in this project.
     script: scripts/fetch_reliefweb_signals.py
     workflow: .github/workflows/reliefweb-signal-pull.yml
     cadence: "daily, 06:45 UTC"

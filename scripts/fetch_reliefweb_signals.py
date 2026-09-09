@@ -1,26 +1,22 @@
 """
 Phase 5 — ReliefWeb humanitarian/climate/food-security signal for Lesotho.
 
-UPDATE after first live test: the initial version of this script pointed
-at /v1/reports and got a clean, unambiguous 410 error: "The API version
-'v1' has been decommissioned. Please use version 'v2' instead." Fixed
-below. ReliefWeb's own documentation states v2 is fully compatible with
-v1's parameter structure, so nothing else about the request needed to
-change -- just the URL.
+UPDATE: appname approved. ReliefWeb adjusted the requested name to meet
+their naming standards and issued "Lndc-forecasting-fuoewfr-freouf79Ke" --
+set below. Per ReliefWeb's own note, allow ~10 minutes after approval for
+it to propagate through their API before the first real run.
 
-STILL UNVERIFIED, WATCH FOR THIS ON THE NEXT RUN: ReliefWeb's
-documentation states "From 1 November 2025, you need to use a
-pre-approved appname" for ALL API versions, not just the separate
-Publishing API. `appname=lndc-intelligence-radar` below is a string I
-picked, not something confirmed pre-approved. If the next run fails with
-a 401/403 (rather than succeeding, or the previous 410), that's almost
-certainly this -- the fix at that point is registering/requesting an
-approved appname with ReliefWeb/OCHA, not another code change. Also still
-unverified: the exact response field structure (fields.title,
-fields.date.created, fields.source[].name, etc.) -- see to_rows() below,
-which degrades gracefully rather than crashing if these guesses are wrong,
-and the run log prints the raw shape of the first report received so a
-mismatch is immediately visible.
+STILL GENUINELY UNVERIFIED, WATCH FOR THIS ON THE FIRST REAL RUN: this
+script has never received a real 200 response, only a 410 (wrong API
+version, fixed) and then a 403 (unapproved appname, now resolved). The
+exact response field structure (fields.title, fields.date.created,
+fields.source[].name, etc.) is a best-effort guess from ReliefWeb's
+documentation, not something confirmed against real data -- to_rows()
+below degrades gracefully rather than crashing if these guesses are
+wrong, and the run log prints the raw shape of the first report received
+so a mismatch is immediately visible. Treat the first real run's log as
+the actual test, the same discipline every other new source in this
+project has gone through.
 
 WHY RELIEFWEB AND NOT FEWS NET DIRECTLY: FEWS NET's own site doesn't
 appear to expose a comparably documented, free, structured API. ReliefWeb
@@ -47,7 +43,7 @@ from lib.csv_log import append_new_rows, utc_now_iso  # noqa: E402
 API_URL = "https://api.reliefweb.int/v2/reports"
 
 PARAMS = {
-    "appname": "lndc-intelligence-radar",
+    "appname": "Lndc-forecasting-fuoewfr-freouf79Ke",
     "query[value]": "Lesotho",
     "query[operator]": "AND",
     "sort[]": "date:desc",
