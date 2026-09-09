@@ -508,10 +508,19 @@ computations:
       this doesn't fully close the dashboard's long-standing "5 new
       industrial sectors has no tracking source" gap, but every named
       sector now has a real, checked status instead of silence.
-    inputs: [comtrade_sacu_basket, gdelt_general]
+      UPDATE: once ReliefWeb's appname was approved, added a dedicated
+      reliefweb_article_count field for grains_poultry specifically --
+      the one sector where humanitarian/food-security reports (drought,
+      food insecurity) bear directly enough to warrant a named field
+      beyond the general news tags. Deliberately not extended to other
+      sectors where the connection would be weaker or more speculative;
+      the field is left blank (not zero) for those, and blank rather
+      than a fabricated zero when the ReliefWeb source itself isn't
+      available yet.
+    inputs: [comtrade_sacu_basket, gdelt_general, reliefweb_signals]
     script: scripts/compute_sector_watchlist.py
     workflow: .github/workflows/compute-sector-watchlist.yml
-    trigger: "runs automatically after either input source updates, plus workflow_dispatch"
+    trigger: "runs automatically after any of its 3 input sources updates, plus workflow_dispatch"
     outputs:
       - data/derived/sector_watchlist_log.csv
 

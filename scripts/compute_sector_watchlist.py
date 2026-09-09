@@ -47,6 +47,7 @@ sys.path.insert(0, os.path.dirname(__file__))  # noqa: E402
 
 TRADE_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "trade", "comtrade_sacu_basket_log.csv")
 NEWS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "news", "general_signal_log.csv")
+RELIEFWEB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "climate", "reliefweb_signal_log.csv")
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "derived", "sector_watchlist_log.csv")
 
 # Every sector named in the strategy's Ch.2.6 (wage-goods / defensive) and
@@ -57,7 +58,11 @@ SECTOR_DEFINITIONS = [
     # --- Wage-goods (defensive / import-substitution priority) ---
     {"id": "grains_poultry", "name": "Grains and poultry", "type": "wage_goods",
      "hs_chapters": [10, 2], "news_tags": ["agriculture_agroprocessing", "climate_food_security"],
-     "coverage_note": "HS 10 (cereals) + HS 02 (meat, incl. poultry) as a reasonable trade proxy."},
+     "reliefweb_relevant": True,
+     "coverage_note": "HS 10 (cereals) + HS 02 (meat, incl. poultry) as a reasonable trade proxy. Also the one "
+                       "sector with a dedicated humanitarian/food-security signal (ReliefWeb), added once that "
+                       "source's appname was approved -- drought and food-insecurity reports bear directly on "
+                       "this sector in a way the general news tags alone don't capture."},
     {"id": "energy_services", "name": "Electricity and energy services", "type": "wage_goods",
      "hs_chapters": [27], "news_tags": ["energy_water"],
      "coverage_note": "HS 27 is 'mineral fuels' broadly (oil, gas, coal) -- a loose proxy, since electricity "
@@ -137,6 +142,18 @@ def load_news_tag_counts(path):
     return counts
 
 
+def load_reliefweb_count():
+    """Total humanitarian/food-security reports for Lesotho from
+    ReliefWeb -- activated once the appname was approved (previously
+    blocked_pending_appname_approval in the registry). Returns None, not
+    0, when the source is unavailable, so a genuine "zero reports" state
+    is never confused with "the file doesn't exist yet"."""
+    if not os.path.exists(RELIEFWEB_PATH):
+        return None
+    df = pd.read_csv(RELIEFWEB_PATH, keep_default_na=False)
+    return len(df)
+
+
 def trade_value_for_chapters(lesotho_trade, chapters, flow, year):
     if lesotho_trade is None or not chapters:
         return None
@@ -150,7 +167,7 @@ def trade_value_for_chapters(lesotho_trade, chapters, flow, year):
     return float(subset["trade_value_usd"].sum())
 
 
-def compute_sector_row(sector, lesotho_trade, news_tag_counts, latest_year):
+def compute_sector_row(sector, lesotho_trade, news_tag_counts, latest_year, reliefweb_count):
     row = {
         "sector_id": sector["id"],
         "sector_name": sector["name"],
@@ -164,6 +181,7 @@ def compute_sector_row(sector, lesotho_trade, news_tag_counts, latest_year):
         "import_value_usd": None,
         "import_dependency_ratio": None,
         "recent_news_count": sum(news_tag_counts.get(t, 0) for t in sector["news_tags"]),
+        "reliefweb_article_count": reliefweb_count if sector.get("reliefweb_relevant") else None,
         "coverage_note": sector["coverage_note"],
     }
 
@@ -182,6 +200,11 @@ def main():
     computed_at = utc_now_iso()
     lesotho_trade = load_lesotho_trade(TRADE_PATH)
     news_tag_counts = load_news_tag_counts(NEWS_PATH)
+    reliefweb_count = load_reliefweb_count()
+    if reliefweb_count is not None:
+        print(f"ReliefWeb: {reliefweb_count} humanitarian/food-security report(s) for Lesotho on file.")
+    else:
+        print("ReliefWeb: source file not present yet -- reliefweb_article_count will be blank, not zero.")
 
     latest_year = None
     if lesotho_trade is not None and not lesotho_trade.empty:
@@ -193,7 +216,7 @@ def main():
     rows = []
     untracked = []
     for sector in SECTOR_DEFINITIONS:
-        row = compute_sector_row(sector, lesotho_trade, news_tag_counts, latest_year)
+        row = compute_sector_row(sector, lesotho_trade, news_tag_counts, latest_year, reliefweb_count)
         row["computed_at"] = computed_at
         rows.append(row)
         if not row["trade_data_available"] and not row["news_data_available"]:

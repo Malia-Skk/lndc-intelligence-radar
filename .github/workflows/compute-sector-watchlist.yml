@@ -5,6 +5,7 @@ on:
     workflows:
       - "Trade basket pull (UN Comtrade, SACU AG2)"
       - "General signal pull (GDELT, auto-tagged)"
+      - "Climate/food-security signal pull (ReliefWeb)"
     types: [completed]
   workflow_dispatch: {}
 
