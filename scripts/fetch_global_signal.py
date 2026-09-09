@@ -159,20 +159,22 @@ def fetch_bucket(bucket_name, query, max_attempts=None):
 
 
 # How many attempts the second pass gets, per bucket that failed its
-# first full cycle. REAL EVIDENCE FROM A LIVE RUN, not a guess: the
-# first bucket queried failed all 4 attempts (rate-limited every time),
-# while later buckets increasingly succeeded on later attempts -- the
-# second bucket succeeded on attempt 4, the last bucket succeeded on
-# just attempt 2. That pattern is consistent with a rate-limit window
-# that gradually clears as more wall-clock time passes during the run,
-# which means whichever bucket happens to go first is structurally
-# disadvantaged, regardless of its own wording. A second pass, run only
-# after every bucket has had its first turn (so the maximum possible
-# time has elapsed since the run started), gives an early, unlucky
-# bucket a real chance to succeed once that window has had more time to
-# clear -- rather than being permanently given up on just because it
-# happened to be tried first.
-SECOND_PASS_MAX_ATTEMPTS = 2
+# first full cycle. Two real live runs have now shown this rate-limiting
+# doesn't cleanly track either sequence position (run 1: the FIRST
+# bucket failed hardest, contradicting a "not enough elapsed time yet"
+# theory when it was tested against a second run) or query breadth (run
+# 2: trade_preference_policy failed while data_centre_investment, whose
+# terms are if anything more generic/high-volume, succeeded and even
+# hit the record cap) -- both plausible hypotheses, both tested directly
+# against real evidence, neither holding up. Treated here as likely
+# irreducible variability in a free, shared-infrastructure service
+# (GitHub Actions runners share IP ranges with many unrelated jobs)
+# rather than something worth chasing with an increasingly specific
+# theory the data doesn't actually support. A small bump (2 -> 3) gives
+# a modest extra margin without meaningfully lengthening a run that
+# already degrades gracefully and, being a daily schedule, gets a
+# completely fresh set of attempts again in 24 hours regardless.
+SECOND_PASS_MAX_ATTEMPTS = 3
 
 
 def fetch_all_signals():
