@@ -788,9 +788,67 @@ computations:
       surface; this is a screening list for a human reviewer to scan in
       a few minutes, exactly matching the report's own Chapter 8.3
       governance principle, not an autonomous, unreviewed output.
+
+      UPDATE for Phase C: output switched from overwriting a fresh
+      snapshot each run to APPENDING one, with a dedicated append_snapshot()
+      function -- deliberately not lib/csv_log.py's append_new_rows(),
+      whose key-based dedup would wrongly suppress a candidate's own
+      metrics changing run over run. This keeps every run's snapshot as
+      its own historical row, which compute_signal_corroboration.py (see
+      below) needs to detect whether a candidate persists across
+      multiple separate runs, not just within one.
     inputs: [anomaly_signals, global_signal]
     script: scripts/compute_sector_discovery.py
     workflow: .github/workflows/compute-sector-discovery.yml
     trigger: "runs automatically after either input source updates, plus workflow_dispatch"
     outputs:
       - data/derived/sector_discovery_log.csv
+
+  - id: signal_corroboration
+    category: cross-cutting
+    status: active
+    description: >
+      Phase C of the predictive-analytics expansion (per the report's
+      Chapter 3.1: a signal in one channel should be cross-checked
+      against another) -- extends Phase B's discovery candidates with
+      two signal types Phase B's own script never checks, plus temporal
+      persistence now that sector_discovery's output is a genuine
+      historical log rather than an overwritten snapshot. (1) TEMPORAL
+      PERSISTENCE: a candidate recurring across multiple separate,
+      independently-computed runs (spanning real elapsed days) is
+      materially stronger evidence than appearing once. HONEST
+      LIMITATION: this signal starts weak given how recently history
+      started accumulating and gets more meaningful automatically over
+      time, the same trajectory as this project's other "needs more
+      history" signals. (2) ANOMALY CROSS-REFERENCE: does a candidate
+      share meaningful words with any currently-flagged statistical
+      anomaly's own label -- corroboration from a completely different
+      detection method (z-score screening on real trade/macro data), not
+      just recurring news. (3) PEER-INSIGHT CROSS-REFERENCE: does a
+      candidate share meaningful words with a SACU peer-country finding.
+
+      A REAL BUG FOUND AND FIXED DURING BUILD: a first real run showed
+      "gold exports" (Ghana's policy) "matching" an unrelated Botswana
+      export anomaly purely via the shared word "exports", and "africa
+      chrome" matching three unrelated South African export anomalies
+      purely via "africa" -- both near-universal words in nearly every
+      trade-anomaly label regardless of actual subject. Fixed by
+      excluding a curated set of generic/near-universal words before
+      checking for overlap. A SECOND version of that fix (also requiring
+      2+ shared words on top of the exclusion) was itself found to be
+      too strict via testing -- it rejected "green hydrogen" matching
+      "Hydrogen fuel cell components" (a genuine, specific, single-word
+      match) -- and was removed once testing showed the exclusion list
+      alone already correctly rejected both original false positives
+      without it. HONEST REMAINING LIMITATION: a genuinely polysemous
+      word (e.g. "solar" meaning either solar power or a solar eclipse)
+      can still produce an occasional false match, since it isn't a
+      generic/near-universal word the exclusion list would catch. Low
+      cost: every corroboration claim links back to its source text, so
+      a human reviewer dismisses a genuinely irrelevant match in seconds.
+    inputs: [sector_discovery, anomaly_signals, cross_domain_insights]
+    script: scripts/compute_signal_corroboration.py
+    workflow: .github/workflows/compute-signal-corroboration.yml
+    trigger: "runs automatically after any of its 3 input sources updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/sector_corroboration_log.csv

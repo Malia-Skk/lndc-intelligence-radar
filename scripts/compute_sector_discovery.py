@@ -319,6 +319,30 @@ def check_corroboration(phrase, lesotho_sources, global_sources, trade_text, pip
     return lesotho_local, global_trend, trade_signal, pipeline_signal, count
 
 
+def append_snapshot(path, columns, rows):
+    """Appends this run's full candidate snapshot to the log, WITHOUT
+    deduping against past runs -- deliberately different from
+    lib/csv_log.py's append_new_rows(), whose key-based dedup would be
+    the wrong semantics here. That helper assumes a row's identity is
+    permanent and its content never legitimately changes once recorded
+    (true for a fetched news article, keyed by URL). A candidate
+    phrase's OWN metrics (distinct_domain_count, corroboration_count)
+    genuinely change run over run as more signal accumulates -- the
+    point of this log growing over time is to keep every run's snapshot
+    as its own historical row, specifically so a later computation
+    (compute_signal_corroboration.py) can count how many separate
+    computed_at timestamps a given phrase has persisted across. Deduping
+    by candidate_phrase would silently throw that signal away."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    is_new_file = not os.path.exists(path)
+    with open(path, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=columns)
+        if is_new_file:
+            writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+
+
 def main():
     computed_at = utc_now_iso()
 
@@ -329,7 +353,7 @@ def main():
 
     if not all_articles:
         print("No article data available at all -- writing an empty (but correctly-headed) output.")
-        pd.DataFrame([], columns=OUTPUT_COLUMNS).to_csv(OUTPUT_PATH, index=False)
+        append_snapshot(OUTPUT_PATH, OUTPUT_COLUMNS, [])
         return
 
     phrase_domains, phrase_title_wordsets, phrase_examples = build_candidate_phrases(all_articles)
@@ -378,8 +402,7 @@ def main():
     rows.sort(key=lambda r: (-r["corroboration_count"], -r["distinct_domain_count"]))
     rows = rows[:MAX_CANDIDATES_OUTPUT]
 
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    pd.DataFrame(rows, columns=OUTPUT_COLUMNS).to_csv(OUTPUT_PATH, index=False)
+    append_snapshot(OUTPUT_PATH, OUTPUT_COLUMNS, rows)
     print(f"Wrote {len(rows)} candidate row(s) to {OUTPUT_PATH}.")
     for r in rows[:10]:
         print(f"  [{r['corroboration_count']} signals] \"{r['candidate_phrase']}\" -- {r['distinct_domain_count']} distinct domain(s)")
