@@ -269,17 +269,37 @@ sources:
       competitive-intelligence pattern (Phase A's critical-minerals peer
       monitoring, Phase 12's peer insights): seeing which other countries
       gain or lose eligibility in the same proclamation is real regional
-      context, not noise. HONEST LIMITATION: this build environment has
-      no network access to www.federalregister.gov, so while written
-      from genuine documented knowledge of this well-established
-      government API, these exact query parameters and the assumed
-      response shape have never received a real response -- tested via
-      10 mocked scenarios (a realistic full response, missing/malformed
-      'results' key, a document missing expected fields, empty response
-      body, persistent HTTP errors, and a result missing the field this
-      project dedupes on) but the first live run's Actions log is the
-      actual test, the same discipline as every other new source in this
-      project.
+      context, not noise.
+
+      UPDATE after the first real run: response parsing was correct on
+      the first try (same track record as ReliefWeb), but the API's own
+      search for the full phrase turned out to have very low precision --
+      200 results, only 11 (5.5%) actually about AGOA, the rest unrelated
+      (an H-1B visa fee rule, a public-health quarantine order, an
+      unrelated executive-order rescission) that matched the API's search
+      for reasons not obvious from outside it. Fixed with a client-side
+      filter requiring a document's OWN title/abstract to actually
+      contain "AGOA" or the full phrase, verified directly against the
+      real 200-document dataset to produce exactly the 11 genuine
+      documents identified by manual inspection -- not dependent on
+      guessing the right query syntax, which can't be tested live anyway.
+      The 189 already-committed false-positive rows from before this fix
+      need a one-time manual cleanup (this script's idempotent-append
+      dedup only prevents NEW duplicates, it doesn't retroactively remove
+      rows already written) -- see PHASE_D_PRECISION_FIX.md.
+
+      A REAL, IMPORTANT FINDING surfaced by the genuine 11 documents,
+      flagged directly for human verification rather than any conclusion
+      drawn here: no document explicitly announces an AGOA lapse or
+      termination, but continued administrative activity is visible
+      through mid-2026 -- an annual eligibility review notice for
+      Calendar Year 2027 (dated 2026-06-30) and an AGOA textile
+      certificate-of-origin program extension (dated 2026-05-06). This
+      doesn't confirm or deny the diagnostic report's own September 2025
+      lapse finding (a legislative authorization lapse might not generate
+      a Federal Register document at all, since it's the absence of
+      action, not a new rule) -- it's flagged as worth reconciling
+      directly against the actual documents, not decided here.
     script: scripts/fetch_agoa_federal_register.py
     workflow: .github/workflows/agoa-federal-register-pull.yml
     cadence: "weekly, Mon 06:15 UTC"

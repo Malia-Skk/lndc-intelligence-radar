@@ -39,6 +39,19 @@ written the same way ReliefWeb's first version was -- which turned out
 to be correct on its first real run -- but that's a track record, not a
 guarantee. Treat the first live run's Actions log as the actual test.
 
+UPDATE after the first real run: the response parsing itself was
+correct on the first try (same as ReliefWeb), but the API's own search
+for conditions[term]="African Growth and Opportunity Act" turned out to
+have very low precision -- 200 results, only 11 (5.5%) actually about
+AGOA, the rest unrelated documents (an H-1B visa fee rule, a public-
+health quarantine order, an unrelated executive-order rescission) that
+matched the API's search for reasons not obvious from outside it. Rather
+than guess at different query syntax that can't be verified live anyway,
+fixed with a client-side filter (is_genuinely_about_agoa()) that only
+keeps a document if ITS OWN title or abstract actually contains "AGOA"
+or the full phrase -- a check this script controls completely and can
+test directly, regardless of how the API's search actually behaves.
+
 SCOPE: fetches ALL Federal Register documents mentioning AGOA, not just
 ones naming Lesotho specifically. This is deliberate, matching this
 project's existing peer/competitive-intelligence pattern (Phase A's
@@ -112,6 +125,26 @@ def fetch_documents():
     return None
 
 
+def is_genuinely_about_agoa(title, abstract):
+    """A real, observed problem, not a hypothetical one: the first live
+    run showed the API's own search returning 200 results for
+    conditions[term]="African Growth and Opportunity Act", but only 11
+    of them (5.5%) actually mention AGOA in their own title or abstract
+    -- the rest were unrelated documents (an H-1B visa fee rule, a
+    public-health quarantine order, an unrelated executive-order
+    rescission) that matched the API's own search for reasons that
+    aren't clear from outside it, likely a looser relevance match than
+    an exact-phrase search. Rather than guess at different query syntax
+    that can't be tested live anyway, this filters client-side: a
+    document only survives if ITS OWN title or abstract genuinely
+    contains "AGOA" or "African Growth and Opportunity Act" as text,
+    which is a check this script controls completely and can verify
+    directly against real data, regardless of how the API's own search
+    actually behaves."""
+    combined = f"{title} {abstract}".lower()
+    return "agoa" in combined or "african growth and opportunity act" in combined
+
+
 def extract_row(doc, pulled_at):
     """Defensive field-by-field extraction -- a document missing an
     expected field gets an empty string for that field rather than
@@ -143,11 +176,18 @@ def main():
         return
 
     rows = []
+    filtered_out = 0
     for doc in results:
         if not doc.get("document_number"):
             print(f"  Skipping a result with no document_number (can't dedupe it safely): {str(doc)[:200]}")
             continue
+        if not is_genuinely_about_agoa(doc.get("title", ""), doc.get("abstract") or ""):
+            filtered_out += 1
+            continue
         rows.append(extract_row(doc, pulled_at))
+
+    print(f"  {len(results)} results from the API's own search; {filtered_out} filtered out as not genuinely "
+          f"mentioning AGOA in their own title/abstract; {len(rows)} kept.")
 
     if not rows:
         print("Fetched a response but extracted zero usable rows -- treat as a failed run, not a quiet zero-data day.")
