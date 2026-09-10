@@ -43,8 +43,28 @@ jobs:
             git config user.email "actions@github.com"
             git add data/derived/sector_discovery_log.csv
             git diff --cached --quiet || git commit -m "Recompute sector discovery candidates"
-            git pull --rebase origin main
-            git push
+            # Retry the pull-rebase-push cycle: another workflow run can push to
+            # main in the gap between this job checking out the repo and this
+            # step running (a real, observed failure otherwise -- several of this
+            # repo's workflows chain off multiple upstream triggers that can
+            # complete close together). Each retry re-fetches the latest main and
+            # re-applies this run's commit on top of it, rather than erroring out
+            # on a base that went stale after checkout.
+            push_succeeded=false
+            for attempt in 1 2 3 4 5; do
+              if git pull --rebase origin main && git push; then
+                echo "Pushed successfully on attempt $attempt."
+                push_succeeded=true
+                break
+              fi
+              echo "Push attempt $attempt failed (likely a race with another workflow run writing to main)."
+              git rebase --abort 2>/dev/null || true
+              sleep 10
+            done
+            if [ "$push_succeeded" != "true" ]; then
+              echo "Failed to push after 5 attempts. This run's computed result was not lost -- it will simply be recomputed and pushed on the next scheduled or triggered run."
+              exit 1
+            fi
           else
             echo "No output file present this run -- nothing to commit."
           fi
