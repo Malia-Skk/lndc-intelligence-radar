@@ -1,0 +1,65 @@
+name: AGOA/trade-policy signal pull (Federal Register)
+
+on:
+  schedule:
+    - cron: "15 6 * * 1"   # weekly, Mon 06:15 UTC -- offset from other Monday pulls to avoid runner contention
+  workflow_dispatch: {}    # important for this one especially, since the live API behaviour has not been
+                            # verified before this first real run (see script docstring)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agoa-federal-register-pull
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run AGOA Federal Register fetch script
+        run: python scripts/fetch_agoa_federal_register.py
+
+      - name: Commit and push updated log
+        run: |
+          if [ -f data/trade_policy/agoa_federal_register_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/trade_policy/agoa_federal_register_log.csv
+            git diff --cached --quiet || git commit -m "Update AGOA Federal Register log"
+            # Retry the pull-rebase-push cycle: another workflow run can push to
+            # main in the gap between this job checking out the repo and this
+            # step running (a real, observed failure otherwise -- several of this
+            # repo's workflows chain off multiple upstream triggers that can
+            # complete close together). Each retry re-fetches the latest main and
+            # re-applies this run's commit on top of it, rather than erroring out
+            # on a base that went stale after checkout.
+            push_succeeded=false
+            for attempt in 1 2 3 4 5; do
+              if git pull --rebase origin main && git push; then
+                echo "Pushed successfully on attempt $attempt."
+                push_succeeded=true
+                break
+              fi
+              echo "Push attempt $attempt failed (likely a race with another workflow run writing to main)."
+              git rebase --abort 2>/dev/null || true
+              sleep 10
+            done
+            if [ "$push_succeeded" != "true" ]; then
+              echo "Failed to push after 5 attempts. This run's computed result was not lost -- it will simply be recomputed and pushed on the next scheduled or triggered run."
+              exit 1
+            fi
+          else
+            echo "No log file present this run (the fetch likely failed after retries) - nothing to commit."
+          fi

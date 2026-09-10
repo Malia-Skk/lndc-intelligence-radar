@@ -230,19 +230,60 @@ sources:
 
   - id: agoa_status
     category: trade_policy
-    status: deferred_no_free_api
+    status: superseded_by_agoa_federal_register
     description: >
       AGOA eligibility review status — critical single-point risk for the
-      garments sector. Checked in Phase 5: AGOA eligibility determinations
-      are published via USTR/Federal Register notices and press releases,
-      not a structured API. Building a scraper against a government
-      notice page is exactly the kind of fragile, high-maintenance
+      garments sector, and the single most urgent finding in the Radar
+      diagnostic report (AGOA reportedly lapsed 30 September 2025 with no
+      confirmed renewal as of the report's August 2026 writing). Checked
+      in Phase 5: AGOA eligibility determinations are published via
+      USTR/Federal Register notices and press releases, not a structured
+      API. Building a scraper against a government notice PAGE (agoa.info,
+      USTR's own site) is exactly the kind of fragile, high-maintenance
       dependency this project has otherwise avoided -- one page redesign
       silently breaks it with no error a free-tier API would surface.
-      Real, partial coverage already exists via gdelt_general's
-      trade_policy bucket (explicitly includes "AGOA" as a search term) --
-      see the actual AGOA renewal story that surfaced in Phase 3's first
-      live run. Revisit only if USTR/AGOA.gov ever exposes a real feed.
+      This entry's own closing line said "revisit only if USTR/AGOA.gov
+      ever exposes a real feed" -- as of the predictive-analytics
+      expansion, revisited: not USTR/AGOA.gov itself, but the venue where
+      these determinations are formally, legally published -- the Federal
+      Register, which runs a genuine, free, documented, structured JSON
+      API, not an HTML page to parse. See agoa_federal_register below.
+      This entry stays in the registry to record the original reasoning
+      and why it changed, not because the gap is still open.
+
+  - id: agoa_federal_register
+    category: trade_policy
+    status: active
+    description: >
+      Phase D of the predictive-analytics expansion -- dedicated AGOA/
+      critical trade-policy monitoring, the item the diagnostic report
+      flagged as needing "immediate, standalone verification ahead of
+      everything else." Fetches every Federal Register document
+      mentioning the African Growth and Opportunity Act -- AGOA country
+      eligibility is set by an annual Presidential Proclamation, exactly
+      the kind of document this API is built to search and serve, a
+      fundamentally more robust source than scraping a marketing website
+      (see agoa_status above for why that was rejected in Phase 5).
+      Deliberately fetches ALL AGOA-related documents, not just ones
+      naming Lesotho -- matching this project's existing peer/
+      competitive-intelligence pattern (Phase A's critical-minerals peer
+      monitoring, Phase 12's peer insights): seeing which other countries
+      gain or lose eligibility in the same proclamation is real regional
+      context, not noise. HONEST LIMITATION: this build environment has
+      no network access to www.federalregister.gov, so while written
+      from genuine documented knowledge of this well-established
+      government API, these exact query parameters and the assumed
+      response shape have never received a real response -- tested via
+      10 mocked scenarios (a realistic full response, missing/malformed
+      'results' key, a document missing expected fields, empty response
+      body, persistent HTTP errors, and a result missing the field this
+      project dedupes on) but the first live run's Actions log is the
+      actual test, the same discipline as every other new source in this
+      project.
+    script: scripts/fetch_agoa_federal_register.py
+    workflow: .github/workflows/agoa-federal-register-pull.yml
+    cadence: "weekly, Mon 06:15 UTC"
+    output: data/trade_policy/agoa_federal_register_log.csv
 
   - id: sacu_revenue_pool
     category: fiscal
@@ -852,3 +893,27 @@ computations:
     trigger: "runs automatically after any of its 3 input sources updates, plus workflow_dispatch"
     outputs:
       - data/derived/sector_corroboration_log.csv
+
+  - id: agoa_eligibility_flags
+    category: trade_policy
+    status: active
+    description: >
+      Analyzes the raw agoa_federal_register feed for two things a human
+      reviewer needs to see immediately, not buried in a raw document
+      list: which documents use language suggesting an actual eligibility
+      OUTCOME (terminate, withdraw, suspend, reinstate, graduate,
+      ineligible) as opposed to the routine, expected annual continuation
+      mechanism, and which documents specifically name Lesotho. EXTREME
+      CAUTION, GIVEN THE STAKES: this is keyword matching on a document's
+      title and abstract, not a reading of the actual legal text -- "a
+      proclamation exists" is the routine annual mechanism regardless of
+      outcome, so only genuine outcome language is flagged, not the mere
+      existence of a proclamation. This still cannot substitute for a
+      human reading the linked document directly; every output row links
+      to the real Federal Register page for exactly that reason.
+    inputs: [agoa_federal_register]
+    script: scripts/compute_agoa_eligibility_flags.py
+    workflow: .github/workflows/compute-agoa-eligibility-flags.yml
+    trigger: "runs automatically after agoa_federal_register updates, plus workflow_dispatch"
+    outputs:
+      - data/derived/agoa_eligibility_flags_log.csv

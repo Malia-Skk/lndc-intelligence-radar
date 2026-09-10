@@ -1,0 +1,62 @@
+name: Compute AGOA eligibility flags
+
+on:
+  workflow_run:
+    workflows:
+      - "AGOA/trade-policy signal pull (Federal Register)"
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: compute-agoa-eligibility-flags
+  cancel-in-progress: false
+
+jobs:
+  compute:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run AGOA eligibility flag computation
+        run: python scripts/compute_agoa_eligibility_flags.py
+
+      - name: Commit and push updated output
+        run: |
+          if [ -f data/derived/agoa_eligibility_flags_log.csv ]; then
+            git config user.name "lndc-radar-bot"
+            git config user.email "actions@github.com"
+            git add data/derived/agoa_eligibility_flags_log.csv
+            git diff --cached --quiet || git commit -m "Recompute AGOA eligibility flags"
+            push_succeeded=false
+            for attempt in 1 2 3 4 5; do
+              if git pull --rebase origin main && git push; then
+                echo "Pushed successfully on attempt $attempt."
+                push_succeeded=true
+                break
+              fi
+              echo "Push attempt $attempt failed (likely a race with another workflow run writing to main)."
+              git rebase --abort 2>/dev/null || true
+              sleep 10
+            done
+            if [ "$push_succeeded" != "true" ]; then
+              echo "Failed to push after 5 attempts. This run's computed result was not lost -- it will simply be recomputed and pushed on the next scheduled or triggered run."
+              exit 1
+            fi
+          else
+            echo "No output file present this run -- nothing to commit."
+          fi
